@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🧪 Test de Extensión Chrome - MedManager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        
+        .test-result {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            background: white;
+            border-left: 4px solid #e5e7eb;
+        }
+        
+        .test-result.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .test-result.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .test-result.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .status-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+        
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .button:hover {
+            background: #2563eb;
+        }
+        
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .log-output {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .extension-info {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .extension-info h4 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        
+        .medication-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .medication-info h4 {
+            margin: 0 0 5px 0;
+            color: #1f2937;
+        }
+        
+        .medication-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .download-button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .download-button:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Extensión Chrome - MedManager</h1>
+        
+        <div class="extension-info">
+            <h4>🔍 ¿Qué es esta página?</h4>
+            <p>Esta página está diseñada para probar que la extensión Chrome de MedManager funcione correctamente. 
+            La extensión debería agregar un botón de descarga a cada medicamento mostrado aquí.</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>📋 Resultados del Test</h2>
+            <div id="test-results">
+                <div class="test-result" id="extension-detected">
+                    <span class="status-icon">⏳</span>
+                    <div>
+                        <strong>Extensión Detectada</strong><br>
+                        <small>Verificando si la extensión está instalada...</small>
+                    </div>
+                </div>
+                
+                <div class="test-result" id="content-script-loaded">
+                    <span class="status-icon">⏳</span>
+                    <div>
+                        <strong>Content Script Cargado</strong><br>
+                        <small>Verificando si el content script se está ejecutando...</small>
+                    </div>
+                </div>
+                
+                <div class="test-result" id="download-buttons-added">
+                    <span class="status-icon">⏳</span>
+                    <div>
+                        <strong>Botones de Descarga Agregados</strong><br>
+                        <small>Verificando si los botones de descarga aparecen...</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="button" onclick="runExtensionTest()">🔄 Ejecutar Test</button>
+                <button class="button" onclick="checkExtensionStatus()">📊 Verificar Estado</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>💊 Medicamentos de Prueba</h2>
+            <p>Estos medicamentos de prueba deberían tener botones de descarga agregados por la extensión:</p>
+            
+            <div id="test-medications">
+                <div class="medication-item" data-medication-id="1">
+                    <div class="medication-info">
+                        <h4>Medicamento de Prueba 1</h4>
+                        <p>Paracetamol 500mg - Tomar cada 8 horas</p>
+                    </div>
+                </div>
+                
+                <div class="medication-item" data-medication-id="2">
+                    <div class="medication-info">
+                        <h4>Medicamento de Prueba 2</h4>
+                        <p>Ibuprofeno 400mg - Tomar cada 12 horas</p>
+                    </div>
+                </div>
+                
+                <div class="medication-item" data-medication-id="3">
+                    <div class="medication-info">
+                        <h4>Medicamento de Prueba 3</h4>
+                        <p>Amoxicilina 500mg - Tomar cada 8 horas durante 7 días</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📝 Instrucciones</h2>
+            <ol style="padding-left: 20px;">
+                <li><strong>Instala la extensión:</strong> Sigue la guía en <a href="/chrome-extension-installation">/chrome-extension-installation</a></li>
+                <li><strong>Recarga esta página:</strong> Después de instalar la extensión, recarga esta página</li>
+                <li><strong>Verifica los botones:</strong> Deberías ver botones de descarga junto a cada medicamento</li>
+                <li><strong>Prueba el popup:</strong> Haz clic en el icono de la extensión en la barra de herramientas</li>
+            </ol>
+        </div>
+        
+        <div class="log-output" id="log-output">
+            Console logs aparecerán aquí...
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/chrome-extension-installation" class="button">🔧 Guía de Instalación</a>
+            <a href="/pwa-status-check" class="button">🔍 Estado del PWA</a>
+            <a href="/" class="button">🏠 Volver al Inicio</a>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to show in test output
+        const originalLog = console.log;
+        const logOutput = document.getElementById('log-output');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] ${message}\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        };
+        
+        function updateTestResult(testId, success, title, message) {
+            const element = document.getElementById(testId);
+            const icon = element.querySelector('.status-icon');
+            const text = element.querySelector('div');
+            
+            element.classList.remove('success', 'error', 'warning');
+            element.classList.add(success ? 'success' : 'error');
+            
+            icon.textContent = success ? '✅' : '❌';
+            text.innerHTML = `<strong>${title}</strong><br><small>${message}</small>`;
+        }
+        
+        function runExtensionTest() {
+            console.log('🧪 Iniciando test de extensión Chrome...');
+            
+            // Test 1: Check if extension is detected
+            setTimeout(() => {
+                if (window.medManagerExtension) {
+                    console.log('✅ Extensión detectada:', window.medManagerExtension);
+                    updateTestResult('extension-detected', true, 'Extensión Detectada', 'La extensión MedManager está instalada');
+                } else {
+                    console.log('❌ Extensión no detectada');
+                    updateTestResult('extension-detected', false, 'Extensión No Detectada', 'La extensión MedManager no está instalada o no se está ejecutando');
+                }
+            }, 1000);
+            
+            // Test 2: Check content script
+            setTimeout(() => {
+                const medicationItems = document.querySelectorAll('.medication-item');
+                let hasDownloadButtons = false;
+                
+                medicationItems.forEach(item => {
+                    if (item.querySelector('.download-button')) {
+                        hasDownloadButtons = true;
+                    }
+                });
+                
+                if (hasDownloadButtons) {
+                    console.log('✅ Content script está funcionando - botones de descarga encontrados');
+                    updateTestResult('content-script-loaded', true, 'Content Script Cargado', 'El content script está agregando elementos a la página');
+                    updateTestResult('download-buttons-added', true, 'Botones de Descarga Agregados', 'Se encontraron botones de descarga en los medicamentos');
+                } else {
+                    console.log('❌ Content script no detectado - no hay botones de descarga');
+                    updateTestResult('content-script-loaded', false, 'Content Script No Cargado', 'El content script no está agregando elementos a la página');
+                    updateTestResult('download-buttons-added', false, 'Sin Botones de Descarga', 'No se encontraron botones de descarga');
+                }
+            }, 1500);
+        }
+        
+        function checkExtensionStatus() {
+            console.log('📊 Verificando estado de la extensión...');
+            
+            // Check if we're on the right domain
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            console.log('📍 Dominio actual:', window.location.hostname, isLocalhost ? '(válido para extensión)' : '(puede no ser válido)');
+            
+            // Check for extension-specific objects
+            console.log('🔍 Objetos de extensión disponibles:', {
+                'medManagerExtension': !!window.medManagerExtension,
+                'chrome': !!window.chrome,
+                'chrome.runtime': !!window.chrome?.runtime,
+                'chrome.extension': !!window.chrome?.extension
+            });
+            
+            // Check for added buttons
+            const downloadButtons = document.querySelectorAll('.download-button');
+            console.log('📥 Botones de descarga encontrados:', downloadButtons.length);
+            
+            if (downloadButtons.length === 0) {
+                console.log('💡 Consejo: Asegúrate de que la extensión esté instalada y recarga la página');
+            }
+            
+            // Check for extension messages
+            if (window.chrome && window.chrome.runtime) {
+                console.log('✅ Chrome Runtime disponible');
+            } else {
+                console.log('⚠️ Chrome Runtime no disponible - la extensión puede no estar instalada');
+            }
+        }
+        
+        // Simulate extension functionality for testing
+        function simulateExtension() {
+            console.log('🔧 Simulando funcionalidad de extensión para pruebas...');
+            
+            // Add download buttons manually
+            const medicationItems = document.querySelectorAll('.medication-item');
+            medicationItems.forEach(item => {
+                if (!item.querySelector('.download-button')) {
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'download-button';
+                    downloadBtn.textContent = '💾 Descargar';
+                    downloadBtn.onclick = () => {
+                        const medicationId = item.getAttribute('data-medication-id');
+                        const medicationName = item.querySelector('h4').textContent;
+                        console.log('📥 Descargando medicamento:', medicationName, '(ID:', medicationId, ')');
+                        alert(`Simulando descarga de: ${medicationName}`);
+                    };
+                    item.appendChild(downloadBtn);
+                }
+            });
+            
+            // Simulate extension object
+            window.medManagerExtension = {
+                version: '1.0.0',
+                installed: true,
+                pageDetected: true
+            };
+            
+            console.log('✅ Simulación completada - extensión funcional temporalmente');
+            runExtensionTest();
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('🧪 Página de test de extensión cargada');
+            console.log('📍 URL actual:', window.location.href);
+            console.log('🏷️ Dominio:', window.location.hostname);
+            
+            // Auto-run test after a delay
+            setTimeout(() => {
+                runExtensionTest();
+            }, 2000);
+            
+            // Add simulate button functionality
+            const simulateBtn = document.createElement('button');
+            simulateBtn.className = 'button';
+            simulateBtn.textContent = '🎭 Simular Extensión';
+            simulateBtn.onclick = simulateExtension;
+            simulateBtn.style.marginLeft = '10px';
+            
+            const buttonContainer = document.querySelector('.test-section .button').parentNode;
+            buttonContainer.appendChild(simulateBtn);
+        });
+    </script>
+</body>
+</html>

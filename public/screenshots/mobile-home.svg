@@ -1,0 +1,82 @@
+<svg width="390" height="844" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phone Frame -->
+  <rect width="390" height="844" fill="#000" rx="40"/>
+  <rect x="10" y="10" width="370" height="824" fill="#f8fafc" rx="30"/>
+  
+  <!-- Status Bar -->
+  <rect x="10" y="10" width="370" height="44" fill="#3b82f6" rx="30"/>
+  <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="white">9:41</text>
+  <text x="280" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="white">100%</text>
+  
+  <!-- App Header -->
+  <rect x="10" y="54" width="370" height="60" fill="#3b82f6"/>
+  <text x="30" y="88" font-family="Arial, sans-serif" font-size="20" font-weight="600" fill="white">MedManager</text>
+  
+  <!-- Search Bar -->
+  <rect x="30" y="134" width="330" height="45" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="50" y="160" font-family="Arial, sans-serif" font-size="16" fill="#64748b">Buscar medicamentos...</text>
+  
+  <!-- Quick Actions -->
+  <rect x="30" y="199" width="75" height="75" rx="16" fill="#3b82f6" opacity="0.1"/>
+  <text x="45" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6">Agregar</text>
+  <text x="50" y="250" font-family="Arial, sans-serif" font-size="12" fill="#3b82f6">Nuevo</text>
+  
+  <rect x="120" y="199" width="75" height="75" rx="16" fill="#10b981" opacity="0.1"/>
+  <text x="135" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#10b981">Ver</text>
+  <text x="140" y="250" font-family="Arial, sans-serif" font-size="12" fill="#10b981">Stock</text>
+  
+  <rect x="210" y="199" width="75" height="75" rx="16" fill="#f59e0b" opacity="0.1"/>
+  <text x="225" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#f59e0b">Alertas</text>
+  <text x="235" y="250" font-family="Arial, sans-serif" font-size="12" fill="#f59e0b">Stock</text>
+  
+  <rect x="300" y="199" width="60" height="75" rx="16" fill="#ef4444" opacity="0.1"/>
+  <text x="315" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#ef4444">Más</text>
+  
+  <!-- Recent Medications Title -->
+  <text x="30" y="304" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#1e293b">Medicamentos Recientes</text>
+  
+  <!-- Medication Card 1 -->
+  <rect x="30" y="324" width="330" height="100" rx="16" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="60" cy="364" r="25" fill="#3b82f6" opacity="0.1"/>
+  <text x="85" y="355" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#1e293b">Paracetamol</text>
+  <text x="85" y="375" font-family="Arial, sans-serif" font-size="14" fill="#64748b">500mg - Tabletas</text>
+  <text x="85" y="395" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#3b82f6">$12.50</text>
+  <rect x="260" y="344" width="80" height="30" rx="8" fill="#22c55e" opacity="0.1"/>
+  <text x="280" y="364" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#16a34a">En stock</text>
+  
+  <!-- Medication Card 2 -->
+  <rect x="30" y="434" width="330" height="100" rx="16" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="60" cy="474" r="25" fill="#10b981" opacity="0.1"/>
+  <text x="85" y="465" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#1e293b">Ibuprofeno</text>
+  <text x="85" y="485" font-family="Arial, sans-serif" font-size="14" fill="#64748b">400mg - Cápsulas</text>
+  <text x="85" y="505" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#3b82f6">$8.75</text>
+  <rect x="260" y="454" width="80" height="30" rx="8" fill="#f59e0b" opacity="0.1"/>
+  <text x="275" y="474" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#d97706">Stock bajo</text>
+  
+  <!-- Medication Card 3 -->
+  <rect x="30" y="544" width="330" height="100" rx="16" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <circle cx="60" cy="584" r="25" fill="#f59e0b" opacity="0.1"/>
+  <text x="85" y="575" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#1e293b">Amoxicilina</text>
+  <text x="85" y="595" font-family="Arial, sans-serif" font-size="14" fill="#64748b">500mg - Cápsulas</text>
+  <text x="85" y="615" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#3b82f6">$15.30</text>
+  <rect x="260" y="564" width="80" height="30" rx="8" fill="#ef4444" opacity="0.1"/>
+  <text x="275" y="584" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#dc2626">Sin stock</text>
+  
+  <!-- Quick Stats -->
+  <rect x="30" y="654" width="330" height="80" rx="16" fill="#3b82f6" opacity="0.05"/>
+  <text x="50" y="680" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#1e293b">Total Medicamentos</text>
+  <text x="50" y="710" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#3b82f6">247</text>
+  <text x="250" y="680" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#1e293b">Valor Total</text>
+  <text x="250" y="710" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#10b981">$8,450</text>
+  
+  <!-- PWA Features Banner -->
+  <rect x="30" y="754" width="330" height="60" rx="16" fill="#16a34a" opacity="0.1"/>
+  <text x="50" y="775" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#16a34a">✓ Funciona offline</text>
+  <text x="50" y="795" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#16a34a">✓ Instalable como app</text>
+  <text x="200" y="775" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#16a34a">✓ Notificaciones push</text>
+  <text x="200" y="795" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#16a34a">✓ Sincronización automática</text>
+  
+  <!-- Install Button -->
+  <rect x="30" y="834" width="330" height="50" rx="25" fill="#16a34a"/>
+  <text x="150" y="865" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="white">📱 Instalar App</text>
+</svg>

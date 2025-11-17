@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PWA Status Check - MedManager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border-left: 4px solid #e2e8f0;
+        }
+        
+        .status-item.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .status-item.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .status-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .status-description {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+        
+        .action-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-button:hover {
+            background: #2563eb;
+        }
+        
+        .action-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+        
+        .debug-info {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 PWA Status Check - MedManager</h1>
+        
+        <div id="status-container">
+            <div class="status-item" id="sw-status">
+                <div class="status-icon">⏳</div>
+                <div class="status-text">
+                    <div class="status-title">Service Worker</div>
+                    <div class="status-description">Verificando estado...</div>
+                </div>
+            </div>
+            
+            <div class="status-item" id="manifest-status">
+                <div class="status-icon">⏳</div>
+                <div class="status-text">
+                    <div class="status-title">Web App Manifest</div>
+                    <div class="status-description">Verificando estado...</div>
+                </div>
+            </div>
+            
+            <div class="status-item" id="install-status">
+                <div class="status-icon">⏳</div>
+                <div class="status-text">
+                    <div class="status-title">Instalación PWA</div>
+                    <div class="status-description">Verificando estado...</div>
+                </div>
+            </div>
+            
+            <div class="status-item" id="offline-status">
+                <div class="status-icon">⏳</div>
+                <div class="status-text">
+                    <div class="status-title">Modo Offline</div>
+                    <div class="status-description">Verificando estado...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="action-button" onclick="checkPWAStatus()">🔍 Verificar Estado PWA</button>
+            <button class="action-button" onclick="testInstallation()">📱 Probar Instalación</button>
+            <button class="action-button" onclick="goToFullTest()">🧪 Prueba Completa</button>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            <strong>Información de depuración:</strong><br>
+            <span id="debug-content">Haz clic en "Verificar Estado PWA" para obtener información detallada.</span>
+        </div>
+    </div>
+
+    <script>
+        // PWA Status Check Functions
+        async function checkPWAStatus() {
+            console.log('🔍 Iniciando verificación de estado PWA...');
+            
+            const debugContent = document.getElementById('debug-content');
+            debugContent.innerHTML = 'Verificando estado PWA...<br>';
+            
+            // Check Service Worker
+            await checkServiceWorker();
+            
+            // Check Manifest
+            await checkManifest();
+            
+            // Check Installability
+            checkInstallability();
+            
+            // Check Offline Support
+            checkOfflineSupport();
+            
+            // Update debug info
+            updateDebugInfo();
+        }
+        
+        async function checkServiceWorker() {
+            const swStatus = document.getElementById('sw-status');
+            const swIcon = swStatus.querySelector('.status-icon');
+            const swDescription = swStatus.querySelector('.status-description');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    
+                    if (registration) {
+                        if (registration.active) {
+                            if (navigator.serviceWorker.controller) {
+                                swStatus.className = 'status-item success';
+                                swIcon.textContent = '✅';
+                                swDescription.textContent = 'Service Worker activo y controlando la página';
+                                console.log('✅ Service Worker activo y controlando');
+                            } else {
+                                swStatus.className = 'status-item warning';
+                                swIcon.textContent = '⚠️';
+                                swDescription.textContent = 'Service Worker activo pero no controlando (recarga necesaria)';
+                                console.log('⚠️ Service Worker activo pero no controlando');
+                            }
+                        } else {
+                            swStatus.className = 'status-item error';
+                            swIcon.textContent = '❌';
+                            swDescription.textContent = 'Service Worker registrado pero no activo';
+                            console.log('❌ Service Worker registrado pero no activo');
+                        }
+                    } else {
+                        swStatus.className = 'status-item error';
+                        swIcon.textContent = '❌';
+                        swDescription.textContent = 'Service Worker no registrado';
+                        console.log('❌ Service Worker no registrado');
+                    }
+                } catch (error) {
+                    swStatus.className = 'status-item error';
+                    swIcon.textContent = '❌';
+                    swDescription.textContent = 'Error al verificar Service Worker: ' + error.message;
+                    console.error('❌ Error Service Worker:', error);
+                }
+            } else {
+                swStatus.className = 'status-item error';
+                swIcon.textContent = '❌';
+                swDescription.textContent = 'Service Workers no soportados en este navegador';
+                console.log('❌ Service Workers no soportados');
+            }
+        }
+        
+        async function checkManifest() {
+            const manifestStatus = document.getElementById('manifest-status');
+            const manifestIcon = manifestStatus.querySelector('.status-icon');
+            const manifestDescription = manifestStatus.querySelector('.status-description');
+            
+            try {
+                const response = await fetch('/manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    
+                    // Check required fields
+                    const requiredFields = ['name', 'short_name', 'start_url', 'display', 'icons'];
+                    const missingFields = requiredFields.filter(field => !manifest[field]);
+                    
+                    if (missingFields.length === 0) {
+                        manifestStatus.className = 'status-item success';
+                        manifestIcon.textContent = '✅';
+                        manifestDescription.textContent = 'Manifest válido con todos los campos requeridos';
+                        console.log('✅ Manifest válido');
+                    } else {
+                        manifestStatus.className = 'status-item error';
+                        manifestIcon.textContent = '❌';
+                        manifestDescription.textContent = 'Faltan campos requeridos: ' + missingFields.join(', ');
+                        console.log('❌ Manifest incompleto:', missingFields);
+                    }
+                } else {
+                    manifestStatus.className = 'status-item error';
+                    manifestIcon.textContent = '❌';
+                    manifestDescription.textContent = 'Error al cargar manifest.json: ' + response.status;
+                    console.log('❌ Error cargando manifest:', response.status);
+                }
+            } catch (error) {
+                manifestStatus.className = 'status-item error';
+                manifestIcon.textContent = '❌';
+                manifestDescription.textContent = 'Error al cargar manifest: ' + error.message;
+                console.error('❌ Error manifest:', error);
+            }
+        }
+        
+        function checkInstallability() {
+            const installStatus = document.getElementById('install-status');
+            const installIcon = installStatus.querySelector('.status-icon');
+            const installDescription = installStatus.querySelector('.status-description');
+            
+            // Check if we're in standalone mode
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                installStatus.className = 'status-item success';
+                installIcon.textContent = '✅';
+                installDescription.textContent = 'PWA ya está instalada (modo standalone)';
+                console.log('✅ PWA instalada');
+            } else {
+                // Check if beforeinstallprompt is supported
+                if ('beforeinstallprompt' in window) {
+                    installStatus.className = 'status-item success';
+                    installIcon.textContent = '✅';
+                    installDescription.textContent = 'PWA es instalable (beforeinstallprompt disponible)';
+                    console.log('✅ PWA instalable');
+                } else {
+                    installStatus.className = 'status-item warning';
+                    installIcon.textContent = '⚠️';
+                    installDescription.textContent = 'PWA puede ser instalable (beforeinstallprompt no detectado)';
+                    console.log('⚠️ beforeinstallprompt no detectado');
+                }
+            }
+        }
+        
+        function checkOfflineSupport() {
+            const offlineStatus = document.getElementById('offline-status');
+            const offlineIcon = offlineStatus.querySelector('.status-icon');
+            const offlineDescription = offlineStatus.querySelector('.status-description');
+            
+            if ('serviceWorker' in navigator && 'caches' in window) {
+                offlineStatus.className = 'status-item success';
+                offlineIcon.textContent = '✅';
+                offlineDescription.textContent = 'Soporte offline disponible (Service Worker + Caché)';
+                console.log('✅ Soporte offline disponible');
+            } else {
+                offlineStatus.className = 'status-item error';
+                offlineIcon.textContent = '❌';
+                offlineDescription.textContent = 'Soporte offline no disponible';
+                console.log('❌ Soporte offline no disponible');
+            }
+        }
+        
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debug-content');
+            
+            debugContent.innerHTML = `
+                <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                <strong>Display Mode:</strong> ${window.matchMedia('(display-mode: standalone)').matches ? 'Standalone' : 'Browser'}<br>
+                <strong>Standalone Mode:</strong> ${window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches}<br>
+                <strong>Online Status:</strong> ${navigator.onLine ? 'Online' : 'Offline'}<br>
+                <strong>Service Worker:</strong> ${'serviceWorker' in navigator ? 'Soportado' : 'No soportado'}<br>
+                <strong>Caché API:</strong> ${'caches' in window ? 'Soportado' : 'No soportado'}<br>
+                <strong>BeforeInstallPrompt:</strong> ${'beforeinstallprompt' in window ? 'Soportado' : 'No detectado'}<br>
+                <strong>URL Actual:</strong> ${window.location.href}<br>
+                <strong>Fecha/Hora:</strong> ${new Date().toLocaleString()}
+            `;
+        }
+        
+        function testInstallation() {
+            if ('beforeinstallprompt' in window) {
+                // Trigger the install prompt
+                window.dispatchEvent(new Event('beforeinstallprompt'));
+                alert('📱 Se ha disparado el evento beforeinstallprompt. Mira si aparece el diálogo de instalación.');
+            } else {
+                alert('⚠️ El evento beforeinstallprompt no está disponible. La instalación debe hacerse manualmente desde el menú del navegador.');
+            }
+        }
+        
+        function goToFullTest() {
+            window.location.href = '/pwa-test';
+        }
+        
+        // Auto-check on page load
+        window.addEventListener('load', function() {
+            console.log('🚀 PWA Status Check cargado');
+            setTimeout(checkPWAStatus, 1000); // Give time for service worker to register
+        });
+        
+        // Listen for online/offline events
+        window.addEventListener('online', function() {
+            console.log('🟢 Conexión restaurada');
+            checkOfflineSupport();
+        });
+        
+        window.addEventListener('offline', function() {
+            console.log('🔴 Sin conexión');
+            checkOfflineSupport();
+        });
+    </script>
+</body>
+</html>

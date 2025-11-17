@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="88" fill="#3b82f6" stroke="#2563eb" stroke-width="4"/>
+  
+  <!-- Medical cross -->
+  <rect x="80" y="32" width="32" height="128" fill="white" rx="4"/>
+  <rect x="32" y="80" width="128" height="32" fill="white" rx="4"/>
+  
+  <!-- Pills/Medication symbols -->
+  <circle cx="64" cy="64" r="12" fill="#ffffff" opacity="0.8"/>
+  <circle cx="128" cy="64" r="12" fill="#ffffff" opacity="0.8"/>
+  <circle cx="64" cy="128" r="12" fill="#ffffff" opacity="0.8"/>
+  <circle cx="128" cy="128" r="12" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- Center detail -->
+  <circle cx="96" cy="96" r="8" fill="#ffffff" opacity="0.9"/>
+</svg>

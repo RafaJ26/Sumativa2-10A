@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 ELIMINAR TODOS los Medicamentos - MedManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #e53e3e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .danger-box {
+            background: #fff5f5;
+            border: 3px solid #f56565;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .medication-list {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+        }
+        .medication-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .medication-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+        .medication-details {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.4);
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 101, 101, 0.6);
+        }
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .test-indicator {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success-message {
+            background: #f0fff4;
+            border: 2px solid #48bb78;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f56565;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 ELIMINAR TODOS los Medicamentos</h1>
+        
+        <div class="danger-box">
+            <div class="warning-icon">⚠️</div>
+            <h3>¡ADVERTENCIA CRÍTICA!</h3>
+            <p><strong>Esta acción eliminará PERMANENTEMENTE todos los medicamentos de la base de datos.</strong></p>
+            <p>Esta operación no se puede deshacer. Todos los medicamentos, incluyendo los de prueba, se borrarán completamente.</p>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">-</div>
+                <div class="stat-label">Total Medicamentos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="testCount">-</div>
+                <div class="stat-label">De Prueba</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="realCount">-</div>
+                <div class="stat-label">Reales</div>
+            </div>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            Cargando medicamentos...
+        </div>
+
+        <div id="medicationsList" class="medication-list" style="display: none;">
+            <!-- Medications will be displayed here -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>📋 No hay medicamentos registrados</h3>
+            <p>La base de datos ya está vacía. No hay nada que eliminar.</p>
+        </div>
+
+        <div id="actionSection" style="text-align: center; margin: 30px 0; display: none;">
+            <button class="btn btn-danger" onclick="confirmAndDeleteAll()">
+                💥 ELIMINAR TODOS LOS MEDICAMENTOS
+            </button>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <h3>✅ ¡Éxito!</h3>
+            <p>Todos los medicamentos han sido eliminados permanentemente.</p>
+        </div>
+
+        <div class="log-area" id="logArea">
+            <div style="color: #4299e1;">📋 Log de operaciones...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/medication-manager" class="btn btn-secondary">🏠 Volver al Gestor</a>
+            <a href="/" class="btn btn-secondary">🏠 Volver al Inicio</a>
+        </div>
+    </div>
+
+    <script>
+        let allMedications = [];
+        let db;
+
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#4299e1';
+            logArea.innerHTML += `<div style="color: ${color}; margin: 3px 0;">[${timestamp}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function identifyTestMedications(medications) {
+            return medications.filter(med => {
+                const name = med.name?.toLowerCase() || '';
+                const description = med.description?.toLowerCase() || '';
+                const id = String(med.id || '').toLowerCase();
+                
+                return (
+                    name.includes('prueba') ||
+                    name.includes('test') ||
+                    name.includes('demo') ||
+                    name.includes('medicamento de prueba') ||
+                    description.includes('prueba') ||
+                    description.includes('test') ||
+                    description.includes('demo') ||
+                    id.includes('test-') ||
+                    id.includes('demo-') ||
+                    id.includes('prueba-')
+                );
+            });
+        }
+
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('medmanager-db', 1);
+                
+                request.onerror = () => {
+                    log('❌ Error al conectar con base de datos', 'error');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    log('✅ Base de datos conectada', 'success');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    
+                    // Create medications store if it doesn't exist
+                    if (!db.objectStoreNames.contains('medications')) {
+                        const medicationStore = db.createObjectStore('medications', { keyPath: 'id', autoIncrement: true });
+                        medicationStore.createIndex('name', 'name', { unique: false });
+                        medicationStore.createIndex('expiry', 'expiry', { unique: false });
+                        log('📋 Creado object store: medications', 'info');
+                    }
+                };
+            });
+        }
+
+        async function loadMedications() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const medicationsList = document.getElementById('medicationsList');
+            const actionSection = document.getElementById('actionSection');
+            
+            loadingState.style.display = 'block';
+            emptyState.style.display = 'none';
+            medicationsList.style.display = 'none';
+            actionSection.style.display = 'none';
+            
+            try {
+                if (!db) await initDB();
+                
+                // Check if medications store exists
+                if (!db.objectStoreNames.contains('medications')) {
+                    log('⚠️ No existe el almacén de medicamentos', 'warning');
+                    showEmptyState();
+                    return;
+                }
+                
+                const transaction = db.transaction(['medications'], 'readonly');
+                const store = transaction.objectStore('medications');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    allMedications = request.result || [];
+                    displayMedications();
+                    updateStats();
+                    log(`📋 Cargados ${allMedications.length} medicamentos`, 'info');
+                };
+                
+                request.onerror = () => {
+                    log('❌ Error al cargar medicamentos', 'error');
+                    showEmptyState();
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showEmptyState();
+            } finally {
+                loadingState.style.display = 'none';
+            }
+        }
+
+        function showEmptyState() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('medicationsList').style.display = 'none';
+            document.getElementById('actionSection').style.display = 'none';
+            
+            document.getElementById('totalCount').textContent = '0';
+            document.getElementById('testCount').textContent = '0';
+            document.getElementById('realCount').textContent = '0';
+        }
+
+        function updateStats() {
+            const totalCount = allMedications.length;
+            const testMedications = identifyTestMedications(allMedications);
+            const testCount = testMedications.length;
+            const realCount = totalCount - testCount;
+            
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('testCount').textContent = testCount;
+            document.getElementById('realCount').textContent = realCount;
+            
+            // Show/hide action section
+            const actionSection = document.getElementById('actionSection');
+            if (totalCount > 0) {
+                actionSection.style.display = 'block';
+            } else {
+                actionSection.style.display = 'none';
+            }
+        }
+
+        function displayMedications() {
+            const medicationsList = document.getElementById('medicationsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (allMedications.length === 0) {
+                medicationsList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            medicationsList.style.display = 'block';
+            
+            const testMedications = identifyTestMedications(allMedications);
+            
+            medicationsList.innerHTML = allMedications.map(med => {
+                const isTest = testMedications.includes(med);
+                
+                return `
+                    <div class="medication-item" style="${isTest ? 'border-left: 4px solid #f56565; background-color: #fff5f5;' : ''}">
+                        <div style="flex: 1;">
+                            <div class="medication-name">
+                                ${med.name}
+                                ${isTest ? '<span class="test-indicator">🧪 PRUEBA</span>' : ''}
+                            </div>
+                            <div class="medication-details">
+                                <strong>ID:</strong> ${med.id} | 
+                                <strong>Cantidad:</strong> ${med.quantity || '0'} | 
+                                <strong>Precio:</strong> $${med.price || '0.00'} | 
+                                ${med.description || 'Sin descripción'}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #718096; font-size: 0.8em;">
+                                ${med.expiry ? 'Vence: ' + med.expiry : 'Sin fecha'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function confirmAndDeleteAll() {
+            const totalCount = allMedications.length;
+            const testCount = identifyTestMedications(allMedications).length;
+            
+            if (totalCount === 0) {
+                alert('❌ No hay medicamentos para eliminar.');
+                return;
+            }
+            
+            const message = `⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\n\n` +
+                          `Esta acción eliminará PERMANENTEMENTE:\n` +
+                          `• ${totalCount} medicamento(s) en total\n` +
+                          `• ${testCount} medicamento(s) de prueba\n` +
+                          `• ${totalCount - testCount} medicamento(s) reales\n\n` +
+                          `❌ ESTA ACCIÓN NO SE PUEDE DESHACER ❌\n\n` +
+                          `¿Deseas continuar?`;
+            
+            if (!confirm(message)) {
+                log('❌ Operación cancelada por el usuario', 'info');
+                return;
+            }
+            
+            // Second confirmation
+            const doubleConfirm = prompt('Escribe "ELIMINAR TODO" para confirmar:');
+            if (doubleConfirm !== 'ELIMINAR TODO') {
+                log('❌ Confirmación incorrecta. Operación cancelada.', 'info');
+                return;
+            }
+            
+            deleteAllMedications();
+        }
+
+        async function deleteAllMedications() {
+            try {
+                log('🗑️ Iniciando eliminación completa...', 'info');
+                
+                const transaction = db.transaction(['medications'], 'readwrite');
+                const store = transaction.objectStore('medications');
+                
+                // Get all medications first to log what we're deleting
+                const getAllRequest = store.getAll();
+                
+                getAllRequest.onsuccess = () => {
+                    const medsToDelete = getAllRequest.result;
+                    log(`📋 Encontrados ${medsToDelete.length} medicamentos para eliminar`, 'info');
+                    
+                    // Show what we're deleting
+                    medsToDelete.forEach(med => {
+                        const isTest = identifyTestMedications([med]).length > 0;
+                        log(`🗑️ Eliminando: "${med.name}" (ID: ${med.id}) ${isTest ? '[PRUEBA]' : ''}`, 'info');
+                    });
+                };
+                
+                // Clear all medications
+                const clearRequest = store.clear();
+                
+                clearRequest.onsuccess = () => {
+                    log('✅ Todos los medicamentos han sido eliminados', 'success');
+                    
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Reload to show empty state
+                    setTimeout(() => {
+                        loadMedications();
+                    }, 2000);
+                };
+                
+                clearRequest.onerror = () => {
+                    log('❌ Error al eliminar medicamentos', 'error');
+                    alert('❌ Error al eliminar los medicamentos. Por favor, intenta nuevamente.');
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                alert('❌ Error al eliminar los medicamentos.');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚨 Herramienta de eliminación completa iniciada', 'info');
+            loadMedications();
+        });
+    </script>
+</body>
+</html>

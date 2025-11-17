@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Medicamentos de Prueba - MedManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .warning-box {
+            background: #fff5f5;
+            border: 2px solid #f56565;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background: #f0fff4;
+            border: 2px solid #48bb78;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .medication-list {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .medication-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .medication-name {
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .medication-details {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+        }
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .filter-section {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .checkbox-group {
+            margin: 10px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Limpiar Medicamentos de Prueba</h1>
+        
+        <div class="warning-box">
+            <strong>⚠️ Advertencia:</strong> Esta herramienta eliminará permanentemente los medicamentos de prueba y datos de prueba del sistema. 
+            Los medicamentos reales no se verán afectados si están correctamente identificados.
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMedications">-</div>
+                <div class="stat-label">Total Medicamentos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="testMedications">-</div>
+                <div class="stat-label">Medicamentos de Prueba</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="syncQueue">-</div>
+                <div class="stat-label">En Cola de Sincronización</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>🔍 Filtros de Búsqueda</h3>
+            <input type="text" id="searchFilter" placeholder="Buscar medicamentos por nombre..." class="filter-input" onkeyup="filterMedications()">
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="showOnlyTest" onchange="filterMedications()"> Mostrar solo medicamentos de prueba</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="includeTestInName" onchange="filterMedications()"> Incluir "test", "prueba", "demo" en la búsqueda</label>
+            </div>
+        </div>
+
+        <div class="medication-list" id="medicationsList">
+            <div class="loading">Cargando medicamentos...</div>
+        </div>
+
+        <div class="info-box" id="actionButtons" style="display: none;">
+            <h3>Acciones Disponibles:</h3>
+            <button class="btn btn-danger" onclick="deleteSelectedMedications()">🗑️ Eliminar Seleccionados</button>
+            <button class="btn btn-danger" onclick="deleteAllTestMedications()">⚠️ Eliminar TODOS los de Prueba</button>
+            <button class="btn btn-secondary" onclick="clearSyncQueue()">🔄 Limpiar Cola de Sincronización</button>
+        </div>
+
+        <div class="log-area" id="logArea">
+            <div style="color: #4299e1;">📋 Log de operaciones...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn btn-secondary">🏠 Volver al Inicio</a>
+            <a href="/medication-manager" class="btn btn-primary">💊 Ir al Gestor de Medicamentos</a>
+        </div>
+    </div>
+
+    <script>
+        let allMedications = [];
+        let filteredMedications = [];
+        let selectedMedications = new Set();
+        let db;
+
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#4299e1';
+            logArea.innerHTML += `<div style="color: ${color}; margin: 3px 0;">[${timestamp}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('medmanager-db', 1);
+                
+                request.onerror = () => {
+                    log('❌ Error al conectar con base de datos', 'error');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    log('✅ Base de datos conectada', 'success');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    
+                    // Create medications store if it doesn't exist
+                    if (!db.objectStoreNames.contains('medications')) {
+                        const medicationStore = db.createObjectStore('medications', { keyPath: 'id', autoIncrement: true });
+                        medicationStore.createIndex('name', 'name', { unique: false });
+                        medicationStore.createIndex('expiry', 'expiry', { unique: false });
+                        log('📋 Creado object store: medications', 'info');
+                    }
+                    
+                    // Create sync-medications store if it doesn't exist
+                    if (!db.objectStoreNames.contains('sync-medications')) {
+                        const syncStore = db.createObjectStore('sync-medications', { keyPath: 'id' });
+                        log('📋 Creado object store: sync-medications', 'info');
+                    }
+                };
+            });
+        }
+
+        async function loadMedications() {
+            try {
+                if (!db) await initDB();
+                
+                // Check if medications store exists
+                if (!db.objectStoreNames.contains('medications')) {
+                    log('⚠️ No existe el almacén de medicamentos', 'warning');
+                    allMedications = [];
+                    updateStats();
+                    filterMedications();
+                    return;
+                }
+                
+                const transaction = db.transaction(['medications'], 'readonly');
+                const store = transaction.objectStore('medications');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    allMedications = request.result || [];
+                    updateStats();
+                    filterMedications();
+                    log(`📋 Cargados ${allMedications.length} medicamentos`, 'info');
+                };
+                
+                request.onerror = () => {
+                    log('❌ Error al cargar medicamentos', 'error');
+                    allMedications = [];
+                    updateStats();
+                    filterMedications();
+                };
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                allMedications = [];
+                updateStats();
+                filterMedications();
+            }
+        }
+
+        function updateStats() {
+            const totalCount = allMedications.length;
+            const testCount = identifyTestMedications().length;
+            
+            document.getElementById('totalMedications').textContent = totalCount;
+            document.getElementById('testMedications').textContent = testCount;
+            
+            // Count sync queue items
+            if (db) {
+                const syncTransaction = db.transaction(['sync-medications'], 'readonly');
+                const syncStore = syncTransaction.objectStore('sync-medications');
+                const syncRequest = syncStore.count();
+                
+                syncRequest.onsuccess = () => {
+                    document.getElementById('syncQueue').textContent = syncRequest.result;
+                };
+            }
+
+            // Show action buttons if there are test medications
+            if (testCount > 0) {
+                document.getElementById('actionButtons').style.display = 'block';
+            }
+        }
+
+        function identifyTestMedications() {
+            return allMedications.filter(med => {
+                const name = med.name?.toLowerCase() || '';
+                const description = med.description?.toLowerCase() || '';
+                const id = med.id?.toLowerCase() || '';
+                
+                return (
+                    name.includes('prueba') ||
+                    name.includes('test') ||
+                    name.includes('demo') ||
+                    description.includes('prueba') ||
+                    description.includes('test') ||
+                    description.includes('demo') ||
+                    id.includes('test-') ||
+                    id.includes('demo-') ||
+                    id.includes('prueba-')
+                );
+            });
+        }
+
+        function filterMedications() {
+            const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+            const showOnlyTest = document.getElementById('showOnlyTest').checked;
+            const includeTestInName = document.getElementById('includeTestInName').checked;
+            
+            let filtered = allMedications;
+            
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(med => {
+                    const name = med.name?.toLowerCase() || '';
+                    const description = med.description?.toLowerCase() || '';
+                    
+                    let searchFields = [name, description];
+                    
+                    // Include test-related terms if checkbox is checked
+                    if (includeTestInName) {
+                        searchFields.push('prueba', 'test', 'demo');
+                    }
+                    
+                    return searchFields.some(field => field.includes(searchTerm));
+                });
+            }
+            
+            // Apply test-only filter
+            if (showOnlyTest) {
+                filtered = identifyTestMedications().filter(med => {
+                    if (searchTerm) {
+                        const name = med.name?.toLowerCase() || '';
+                        const description = med.description?.toLowerCase() || '';
+                        return name.includes(searchTerm) || description.includes(searchTerm);
+                    }
+                    return true;
+                });
+            }
+            
+            filteredMedications = filtered;
+            displayMedications();
+        }
+
+        function displayMedications() {
+            const container = document.getElementById('medicationsList');
+            
+            if (filteredMedications.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">No se encontraron medicamentos con los filtros actuales.</div>';
+                return;
+            }
+            
+            container.innerHTML = filteredMedications.map(med => {
+                const isTest = identifyTestMedications().includes(med);
+                const isSelected = selectedMedications.has(med.id);
+                
+                return `
+                    <div class="medication-item" style="${isTest ? 'border-left: 4px solid #f56565;' : ''}">
+                        <div style="flex: 1;">
+                            <div class="medication-name">
+                                ${isTest ? '🧪 ' : ''}${med.name}
+                                ${isSelected ? ' ✅' : ''}
+                            </div>
+                            <div class="medication-details">
+                                ID: ${med.id} | 
+                                Cantidad: ${med.quantity || 'N/A'} | 
+                                ${med.description || 'Sin descripción'}
+                            </div>
+                        </div>
+                        <div>
+                            <input type="checkbox" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   onchange="toggleSelection('${med.id}')"
+                                   title="Seleccionar para eliminar">
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSelection(id) {
+            if (selectedMedications.has(id)) {
+                selectedMedications.delete(id);
+            } else {
+                selectedMedications.add(id);
+            }
+            displayMedications();
+        }
+
+        async function deleteSelectedMedications() {
+            if (selectedMedications.size === 0) {
+                alert('❌ No hay medicamentos seleccionados para eliminar.');
+                return;
+            }
+            
+            if (!confirm(`¿Estás seguro de que quieres eliminar ${selectedMedications.size} medicamento(s)?`)) {
+                return;
+            }
+            
+            try {
+                const transaction = db.transaction(['medications', 'sync-medications'], 'readwrite');
+                const medicationStore = transaction.objectStore('medications');
+                const syncStore = transaction.objectStore('sync-medications');
+                
+                let deletedCount = 0;
+                
+                for (const id of selectedMedications) {
+                    const deleteRequest = medicationStore.delete(id);
+                    
+                    deleteRequest.onsuccess = () => {
+                        deletedCount++;
+                        log(`🗑️ Eliminado: ${id}`, 'success');
+                        
+                        // Add to sync queue if offline
+                        if (!navigator.onLine) {
+                            syncStore.add({ id: id, action: 'delete' });
+                        }
+                    };
+                    
+                    deleteRequest.onerror = () => {
+                        log(`❌ Error al eliminar: ${id}`, 'error');
+                    };
+                }
+                
+                transaction.oncomplete = () => {
+                    log(`✅ Eliminados ${deletedCount} medicamentos`, 'success');
+                    selectedMedications.clear();
+                    loadMedications();
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteAllTestMedications() {
+            const testMedications = identifyTestMedications();
+            
+            if (testMedications.length === 0) {
+                alert('❌ No se encontraron medicamentos de prueba.');
+                return;
+            }
+            
+            if (!confirm(`⚠️ ¿Estás SEGURO de eliminar ${testMedications.length} medicamento(s) de prueba?\n\nEsto incluirá medicamentos con nombres que contengan:\n- "prueba", "test", "demo"\n- IDs que comiencen con "test-", "demo-", "prueba-"`)) {
+                return;
+            }
+            
+            try {
+                const transaction = db.transaction(['medications', 'sync-medications'], 'readwrite');
+                const medicationStore = transaction.objectStore('medications');
+                const syncStore = transaction.objectStore('sync-medications');
+                
+                let deletedCount = 0;
+                
+                for (const med of testMedications) {
+                    const deleteRequest = medicationStore.delete(med.id);
+                    
+                    deleteRequest.onsuccess = () => {
+                        deletedCount++;
+                        log(`🗑️ Eliminado medicamento de prueba: ${med.name}`, 'success');
+                        
+                        // Add to sync queue if offline
+                        if (!navigator.onLine) {
+                            syncStore.add({ id: med.id, action: 'delete' });
+                        }
+                    };
+                    
+                    deleteRequest.onerror = () => {
+                        log(`❌ Error al eliminar: ${med.name}`, 'error');
+                    };
+                }
+                
+                transaction.oncomplete = () => {
+                    log(`✅ Eliminados ${deletedCount} medicamentos de prueba`, 'success');
+                    loadMedications();
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearSyncQueue() {
+            if (!confirm('¿Quieres limpiar la cola de sincronización?')) {
+                return;
+            }
+            
+            try {
+                const transaction = db.transaction(['sync-medications'], 'readwrite');
+                const syncStore = transaction.objectStore('sync-medications');
+                
+                const clearRequest = syncStore.clear();
+                
+                clearRequest.onsuccess = () => {
+                    log('✅ Cola de sincronización limpiada', 'success');
+                    updateStats();
+                };
+                
+                clearRequest.onerror = () => {
+                    log('❌ Error al limpiar cola de sincronización', 'error');
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Iniciando limpiador de medicamentos de prueba...', 'info');
+            loadMedications();
+        });
+    </script>
+</body>
+</html>

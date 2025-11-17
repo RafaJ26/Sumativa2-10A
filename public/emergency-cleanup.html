@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Cleanup - MedManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .emergency-box {
+            background: #fff5f5;
+            border: 2px solid #f56565;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+        }
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .medication-found {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .medication-name {
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .medication-details {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        .warning-icon {
+            font-size: 3em;
+            color: #f56565;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Emergency Cleanup Tool</h1>
+        
+        <div class="emergency-box">
+            <div class="warning-icon">⚠️</div>
+            <h2>Herramienta de Limpieza de Emergencia</h2>
+            <p>Esta herramienta eliminará permanentemente todos los medicamentos de prueba y datos corruptos.</p>
+            <p><strong>Los medicamentos reales no se verán afectados si están correctamente identificados.</strong></p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn btn-danger" onclick="emergencyCleanup()">🗑️ LIMPIAR MEDICAMENTOS DE PRUEBA</button>
+            <button class="btn btn-secondary" onclick="resetDatabase()">🔧 REINICIAR BASE DE DATOS COMPLETA</button>
+        </div>
+
+        <div class="log-area" id="logArea">
+            <div style="color: #4299e1;">📋 Log de operaciones...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn btn-secondary">🏠 Volver al Inicio</a>
+            <a href="/medication-manager" class="btn btn-secondary">💊 Ir al Gestor</a>
+        </div>
+    </div>
+
+    <script>
+        let db;
+
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#4299e1';
+            logArea.innerHTML += `<div style="color: ${color}; margin: 3px 0;">[${timestamp}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('medmanager-db', 1);
+                
+                request.onerror = () => {
+                    log('❌ Error al conectar con base de datos', 'error');
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    log('✅ Base de datos conectada', 'success');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    log('📋 Actualizando estructura de base de datos...', 'info');
+                    
+                    // Create medications store if it doesn't exist
+                    if (!db.objectStoreNames.contains('medications')) {
+                        const medicationStore = db.createObjectStore('medications', { keyPath: 'id', autoIncrement: true });
+                        medicationStore.createIndex('name', 'name', { unique: false });
+                        medicationStore.createIndex('expiry', 'expiry', { unique: false });
+                        log('📋 Creado object store: medications', 'info');
+                    }
+                    
+                    // Create sync-medications store if it doesn't exist
+                    if (!db.objectStoreNames.contains('sync-medications')) {
+                        const syncStore = db.createObjectStore('sync-medications', { keyPath: 'id' });
+                        log('📋 Creado object store: sync-medications', 'info');
+                    }
+                };
+            });
+        }
+
+        async function emergencyCleanup() {
+            if (!confirm('¿Estás SEGURO de que quieres eliminar todos los medicamentos de prueba?\n\nEsto incluirá medicamentos con nombres que contengan:\n- "prueba", "test", "demo"\n- IDs que comiencen con "test-", "demo-", "prueba-"\n\n⚠️ Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                if (!db) await initDB();
+                
+                log('🔍 Buscando medicamentos de prueba...', 'info');
+                
+                // Get all medications
+                const transaction = db.transaction(['medications'], 'readonly');
+                const store = transaction.objectStore('medications');
+                const request = store.getAll();
+                
+                request.onsuccess = async () => {
+                    const allMedications = request.result || [];
+                    log(`📋 Encontrados ${allMedications.length} medicamentos en total`, 'info');
+                    
+                    // Identify test medications
+                    const testMedications = allMedications.filter(med => {
+                        const name = med.name?.toLowerCase() || '';
+                        const description = med.description?.toLowerCase() || '';
+                        const id = String(med.id || '').toLowerCase();
+                        
+                        return (
+                            name.includes('prueba') ||
+                            name.includes('test') ||
+                            name.includes('demo') ||
+                            description.includes('prueba') ||
+                            description.includes('test') ||
+                            description.includes('demo') ||
+                            id.includes('test-') ||
+                            id.includes('demo-') ||
+                            id.includes('prueba-')
+                        );
+                    });
+                    
+                    if (testMedications.length === 0) {
+                        log('✅ No se encontraron medicamentos de prueba', 'success');
+                        alert('No se encontraron medicamentos de prueba para eliminar.');
+                        return;
+                    }
+                    
+                    log(`🧪 Encontrados ${testMedications.length} medicamentos de prueba:`, 'info');
+                    testMedications.forEach(med => {
+                        log(`   - ${med.name} (ID: ${med.id})`, 'info');
+                    });
+                    
+                    // Delete test medications
+                    const deleteTransaction = db.transaction(['medications', 'sync-medications'], 'readwrite');
+                    const medicationStore = deleteTransaction.objectStore('medications');
+                    const syncStore = deleteTransaction.objectStore('sync-medications');
+                    
+                    let deletedCount = 0;
+                    
+                    for (const med of testMedications) {
+                        const deleteRequest = medicationStore.delete(med.id);
+                        
+                        deleteRequest.onsuccess = () => {
+                            deletedCount++;
+                            log(`🗑️ Eliminado: ${med.name}`, 'success');
+                            
+                            // Add to sync queue if offline
+                            if (!navigator.onLine) {
+                                syncStore.add({ id: med.id, action: 'delete' });
+                            }
+                        };
+                        
+                        deleteRequest.onerror = () => {
+                            log(`❌ Error al eliminar: ${med.name}`, 'error');
+                        };
+                    }
+                    
+                    deleteTransaction.oncomplete = () => {
+                        log(`✅ Limpieza completada. Eliminados ${deletedCount} medicamentos de prueba.`, 'success');
+                        alert(`✅ Limpieza completada.\n\nSe eliminaron ${deletedCount} medicamentos de prueba.`);
+                    };
+                };
+                
+                request.onerror = () => {
+                    log('❌ Error al cargar medicamentos', 'error');
+                };
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function resetDatabase() {
+            if (!confirm('¿Estás SEGURO de que quieres REINICIAR completamente la base de datos?\n\n⚠️ ESTO ELIMINARÁ TODOS LOS DATOS:\n- Todos los medicamentos\n- Toda la cola de sincronización\n- Toda la configuración\n\n🔧 Esto creará una base de datos completamente nueva.\n\n⚠️ Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                log('🔧 Iniciando reinicio completo de base de datos...', 'info');
+                
+                // Delete all existing databases
+                const databases = await indexedDB.databases();
+                log(`📋 Encontradas ${databases.length} bases de datos`, 'info');
+                
+                for (const database of databases) {
+                    if (database.name.includes('medmanager') || database.name.includes('medication')) {
+                        await deleteDatabase(database.name);
+                    }
+                }
+                
+                // Create new database
+                log('🔧 Creando nueva base de datos...', 'info');
+                await initDB();
+                
+                log('✅ Reinicio completado. Base de datos nueva creada.', 'success');
+                alert('✅ Reinicio completado.\n\nSe ha creado una base de datos completamente nueva.');
+                
+            } catch (error) {
+                log(`❌ Error durante el reinicio: ${error.message}`, 'error');
+            }
+        }
+
+        function deleteDatabase(name) {
+            return new Promise((resolve, reject) => {
+                const deleteRequest = indexedDB.deleteDatabase(name);
+                
+                deleteRequest.onsuccess = () => {
+                    log(`🗑️ Base de datos eliminada: ${name}`, 'success');
+                    resolve();
+                };
+                
+                deleteRequest.onerror = () => {
+                    log(`❌ Error al eliminar base de datos: ${name}`, 'error');
+                    reject(deleteRequest.error);
+                };
+                
+                deleteRequest.onblocked = () => {
+                    log(`⚠️ Base de datos bloqueada: ${name}`, 'warning');
+                    resolve(); // Resolve anyway
+                };
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Herramienta de limpieza de emergencia iniciada', 'info');
+            initDB();
+        });
+    </script>
+</body>
+</html>

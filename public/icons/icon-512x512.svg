@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="80" fill="#3b82f6"/>
+  <g transform="translate(128, 128)">
+    <rect x="0" y="0" width="256" height="192" rx="20" fill="white" opacity="0.9"/>
+    <rect x="20" y="20" width="216" height="32" rx="8" fill="#3b82f6"/>
+    <rect x="20" y="72" width="216" height="24" rx="6" fill="#93c5fd"/>
+    <rect x="20" y="108" width="216" height="24" rx="6" fill="#93c5fd"/>
+    <rect x="20" y="144" width="216" height="24" rx="6" fill="#93c5fd"/>
+    <circle cx="228" cy="36" r="8" fill="white"/>
+    <text x="128" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#3b82f6" font-weight="bold">MEDMANAGER</text>
+  </g>
+</svg>

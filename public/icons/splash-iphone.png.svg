@@ -1,0 +1,53 @@
+<svg width="1170" height="2532" viewBox="0 0 1170 2532" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1170" height="2532" fill="url(#gradient)"/>
+  
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- App Icon Container -->
+  <rect x="435" y="1066" width="300" height="300" rx="60" fill="white"/>
+  
+  <!-- App Icon - Medical Cross -->
+  <g transform="translate(585, 1216)">
+    <!-- Cross Background -->
+    <rect x="-50" y="-50" width="100" height="100" rx="20" fill="#3b82f6"/>
+    
+    <!-- Medical Cross -->
+    <rect x="-35" y="-8" width="70" height="16" fill="white"/>
+    <rect x="-8" y="-35" width="16" height="70" fill="white"/>
+    
+    <!-- Center Circle -->
+    <circle cx="0" cy="0" r="12" fill="#3b82f6"/>
+    <circle cx="0" cy="0" r="8" fill="white"/>
+  </g>
+  
+  <!-- App Title -->
+  <text x="585" y="1426" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="48" font-weight="700" text-anchor="middle" fill="white">MedManager</text>
+  
+  <!-- App Subtitle -->
+  <text x="585" y="1486" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="400" text-anchor="middle" fill="white" opacity="0.9">Sistema de Gestión de Medicamentos</text>
+  
+  <!-- Loading Indicator -->
+  <g transform="translate(585, 1586)">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="white" stroke-width="3" opacity="0.3"/>
+    <circle cx="0" cy="0" r="30" fill="none" stroke="white" stroke-width="3" stroke-dasharray="94.2" stroke-dashoffset="23.55" transform="rotate(-90)" opacity="0.8">
+      <animateTransform attributeName="transform" type="rotate" from="-90" to="270" dur="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- PWA Features -->
+  <g opacity="0.7">
+    <text x="585" y="1750" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="500" text-anchor="middle" fill="white">✓ Funciona offline</text>
+    <text x="585" y="1780" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="500" text-anchor="middle" fill="white">✓ Sincronización automática</text>
+    <text x="585" y="1810" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="500" text-anchor="middle" fill="white">✓ Notificaciones inteligentes</text>
+  </g>
+  
+  <!-- Bottom Branding -->
+  <text x="585" y="2450" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" text-anchor="middle" fill="white" opacity="0.6">Sistema de Gestión de Medicamentos</text>
+</svg>

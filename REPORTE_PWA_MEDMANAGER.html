@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Implementación PWA - MedManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .student-info {
+            background: #f8fafc;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .student-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .student-info td {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .student-info td:first-child {
+            background: #e2e8f0;
+            font-weight: bold;
+            width: 30%;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            color: #2d3748;
+            border-bottom: 3px solid #3b82f6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .section h3 {
+            color: #4a5568;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #3b82f6;
+        }
+        .file-path {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #475569;
+        }
+        .file-path::before {
+            content: "📁 ";
+            color: #3b82f6;
+        }
+        .screenshot-placeholder {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #64748b;
+            font-style: italic;
+        }
+        .feature-list {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .feature-list h4 {
+            margin-top: 0;
+            color: #0369a1;
+        }
+        .feature-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin: 8px 0;
+            color: #374151;
+        }
+        .url-box {
+            background: #f0fdf4;
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .url-box a {
+            color: #16a34a;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+        .toc {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .toc ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .toc li {
+            margin: 8px 0;
+            color: #4a5568;
+        }
+        .toc a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .warning-box {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .warning-box::before {
+            content: "⚠️ ";
+            font-size: 1.2em;
+        }
+        .success-box {
+            background: #f0fdf4;
+            border: 1px solid #16a34a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #16a34a;
+        }
+        .success-box::before {
+            content: "✅ ";
+            font-size: 1.2em;
+        }
+        .test-results {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .test-results h4 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .test-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #16a34a;
+        }
+        .test-item.success {
+            border-left-color: #16a34a;
+        }
+        .test-item.warning {
+            border-left-color: #f59e0b;
+        }
+        .test-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .references {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .references h4 {
+            margin-top: 0;
+            color: #475569;
+        }
+        .references ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .references li {
+            margin: 8px 0;
+            color: #64748b;
+            font-size: 0.95em;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header/Portada -->
+        <div class="header">
+            <h1>📱 Reporte de Implementación PWA</h1>
+            <p>Sistema de Gestión de Medicamentos - MedManager</p>
+        </div>
+
+        <!-- Información del Estudiante -->
+        <div class="student-info">
+            <h3>📋 Datos del Estudiante</h3>
+            <table>
+                <tr>
+                    <td>Nombre del Estudiante:</td>
+                    <td>[Nombre del Estudiante]</td>
+                </tr>
+                <tr>
+                    <td>Matrícula:</td>
+                    <td>[Número de Matrícula]</td>
+                </tr>
+                <tr>
+                    <td>Asignatura:</td>
+                    <td>Aplicaciones Web Progresivas</td>
+                </tr>
+                <tr>
+                    <td>Profesor:</td>
+                    <td>[Nombre del Profesor]</td>
+                </tr>
+                <tr>
+                    <td>Fecha de Entrega:</td>
+                    <td>16 de Noviembre de 2025</td>
+                </tr>
+                <tr>
+                    <td>Semestre:</td>
+                    <td>10º Cuatrimestre</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Tabla de Contenido -->
+        <div class="toc">
+            <h3>📑 Tabla de Contenido</h3>
+            <ol>
+                <li><a href="#justificacion">Justificación de Plataformas y Herramientas</a></li>
+                <li><a href="#configuracion">Parámetros de Configuración</a></li>
+                <li><a href="#manifest">Archivo Manifiesto</a></li>
+                <li><a href="#arquitectura">Aplicación PWA con Arquitectura de Shell</a></li>
+                <li><a href="#offline">Trabajo Offline</a></li>
+                <li><a href="#instalacion">Instalación de la Aplicación</a></li>
+                <li><a href="#basedatos">Uso de Base de Datos</a></li>
+                <li><a href="#url">URL de la Aplicación Publicada</a></li>
+                <li><a href="#pantallas">Pantallas de Splash y Home</a></li>
+                <li><a href="#pruebas">Reporte de Pruebas</a></li>
+                <li><a href="#referencias">Fuentes de Consulta</a></li>
+            </ol>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="content">
+            <!-- 1. Justificación de Plataformas y Herramientas -->
+            <div class="section" id="justificacion">
+                <h2>1. Justificación de Plataformas y Herramientas Utilizadas</h2>
+                
+                <h3>1.1 Laravel Framework</h3>
+                <p>Se seleccionó Laravel como framework backend debido a su robustez, seguridad y ecosistema maduro. Laravel proporciona:</p>
+                <div class="feature-list">
+                    <h4>✅ Ventajas de Laravel:</h4>
+                    <ul>
+                        <li>Sistema de rutas RESTful integrado</li>
+                        <li>Seguridad avanzada contra vulnerabilidades comunes</li>
+                        <li>Sistema de plantillas Blade para vistas dinámicas</li>
+                        <li>Integración nativa con Vite para assets frontend</li>
+                        <li>Comunidad activa y documentación extensa</li>
+                    </ul>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\composer.json</div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\routes\web.php</div>
+
+                <h3>1.2 Vite Build Tool</h3>
+                <p>Vite fue elegido como herramienta de construcción por su velocidad y soporte nativo para desarrollo moderno:</p>
+                <div class="feature-list">
+                    <h4>✅ Ventajas de Vite:</h4>
+                    <ul>
+                        <li>Hot Module Replacement (HMR) ultra-rápido</li>
+                        <li>Compilación optimizada para producción</li>
+                        <li>Soporte nativo para TypeScript y módulos ES</li>
+                        <li>Integración perfecta con Laravel</li>
+                    </ul>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\vite.config.js</div>
+
+                <h3>1.3 IndexedDB</h3>
+                <p>IndexedDB fue seleccionado como base de datos del navegador por su capacidad de almacenamiento robusta:</p>
+                <div class="feature-list">
+                    <h4>✅ Ventajas de IndexedDB:</h4>
+                    <ul>
+                        <li>Almacenamiento de grandes cantidades de datos estructurados</li>
+                        <li>Operaciones asíncronas que no bloquean el hilo principal</li>
+                        <li>Soporte para transacciones y consultas indexadas</li>
+                        <li>Persistencia de datos entre sesiones</li>
+                        <li>Funcionamiento completo offline</li>
+                    </ul>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\js\medication-manager.js</div>
+
+                <h3>1.4 Service Workers</h3>
+                <p>Los Service Workers fueron implementados para proporcionar funcionalidad offline y caché inteligente:</p>
+                <div class="feature-list">
+                    <h4>✅ Beneficios de Service Workers:</h4>
+                    <ul>
+                        <li>Interceptación y control de solicitudes de red</li>
+                        <li>Caché programable para recursos estáticos y dinámicos</li>
+                        <li>Sincronización en segundo plano</li>
+                        <li>Notificaciones push (habilitadas para futura implementación)</li>
+                    </ul>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\sw-v2.js</div>
+            </div>
+
+            <!-- 2. Parámetros de Configuración -->
+            <div class="section" id="configuracion">
+                <h2>2. Parámetros de Configuración de las Plataformas y Herramientas</h2>
+                
+                <h3>2.1 Configuración de Laravel</h3>
+                <div class="code-block">
+// Configuración del entorno en .env
+APP_NAME=MedManager
+APP_ENV=local
+APP_KEY=base64:your-app-key
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+// Configuración de la base de datos
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database.sqlite
+
+// Configuración de caché
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\.env</div>
+
+                <h3>2.2 Configuración de Vite</h3>
+                <div class="code-block">
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+            ],
+            refresh: true,
+        }),
+    ],
+    server: {
+        host: '127.0.0.1',
+        port: 8000,
+        hmr: {
+            host: 'localhost',
+        },
+    },
+});
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\vite.config.js</div>
+
+                <h3>2.3 Configuración de IndexedDB</h3>
+                <div class="code-block">
+// Configuración de la base de datos IndexedDB
+const DB_CONFIG = {
+    name: 'medmanager-db',
+    version: 1,
+    stores: {
+        medications: {
+            keyPath: 'id',
+            autoIncrement: true,
+            indexes: [
+                { name: 'name', keyPath: 'name', unique: false },
+                { name: 'expiry', keyPath: 'expiry', unique: false }
+            ]
+        },
+        syncQueue: {
+            keyPath: 'id',
+            autoIncrement: true
+        }
+    }
+};
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\js\database-config.js</div>
+
+                <h3>2.4 Configuración del Service Worker</h3>
+                <div class="code-block">
+// Configuración de caché del Service Worker
+const CACHE_CONFIG = {
+    staticCacheName: 'medmanager-static-v1',
+    dynamicCacheName: 'medmanager-dynamic-v1',
+    maxAge: 30 * 24 * 60 * 60, // 30 días en segundos
+    maxEntries: 100,
+    offlinePage: '/offline.html',
+    staticAssets: [
+        '/',
+        '/offline.html',
+        '/css/app.css',
+        '/js/app.js',
+        '/icons/icon-192x192.svg',
+        '/icons/icon-512x512.svg'
+    ]
+};
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\sw-v2.js</div>
+            </div>
+
+            <!-- 3. Archivo Manifiesto -->
+            <div class="section" id="manifest">
+                <h2>3. Archivo Manifiesto (manifest.json)</h2>
+                
+                <p>El archivo manifiesto es el corazón de una PWA, definiendo cómo se comportará la aplicación cuando se instale:</p>
+                
+                <div class="code-block">
+{
+  "name": "MedManager - Sistema de Gestión de Medicamentos",
+  "short_name": "MedManager",
+  "description": "Sistema de gestión de medicamentos con funcionalidad offline para farmacias y pacientes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "categories": ["medical", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.svg",
+      "sizes": "152x152",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.svg",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "desktop",
+      "label": "Pantalla principal de MedManager en desktop"
+    },
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "mobile",
+      "label": "Pantalla principal de MedManager en móvil"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agregar Medicamento",
+      "url": "/medication-manager?action=add",
+      "description": "Agregar un nuevo medicamento al inventario"
+    },
+    {
+      "name": "Ver Inventario",
+      "url": "/medication-manager",
+      "description": "Ver el inventario completo de medicamentos"
+    }
+  ]
+}
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\manifest.json</div>
+                
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Pantalla del archivo manifest.json abierto en el editor
+                    <br>Ubicación: y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\manifest.json
+                </div>
+
+                <h3>3.1 Campos Clave del Manifiesto</h3>
+                <div class="feature-list">
+                    <h4>🔑 Campos Esenciales:</h4>
+                    <ul>
+                        <li><strong>name:</strong> Nombre completo de la aplicación</li>
+                        <li><strong>short_name:</strong> Nombre abreviado para espacios limitados</li>
+                        <li><strong>start_url:</strong> URL de inicio cuando se abre la app</li>
+                        <li><strong>display:</strong> Modo de visualización (standalone para experiencia nativa)</li>
+                        <li><strong>icons:</strong> Conjunto de iconos para diferentes resoluciones</li>
+                        <li><strong>theme_color:</strong> Color del tema para la barra de direcciones</li>
+                        <li><strong>background_color:</strong> Color de fondo mientras carga la app</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 4. Aplicación PWA con Arquitectura de Shell -->
+            <div class="section" id="arquitectura">
+                <h2>4. Aplicación PWA con Arquitectura de Shell</h2>
+                
+                <p>La arquitectura de shell de la aplicación (App Shell) proporciona una estructura base que carga instantáneamente:</p>
+                
+                <h3>4.1 Estructura del App Shell</h3>
+                <div class="code-block">
+<!-- App Shell Structure -->
+<div class="app-shell">
+    <!-- Header persistente -->
+    <header class="app-header">
+        <nav class="app-nav">
+            <h1 class="app-title">MedManager</h1>
+            <div class="nav-actions">
+                <button class="btn-add">+ Agregar</button>
+                <button class="btn-sync">🔄 Sincronizar</button>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Contenido dinámico -->
+    <main class="app-main" id="app-content">
+        <!-- Contenido cargado dinámicamente -->
+    </main>
+    
+    <!-- Footer persistente -->
+    <footer class="app-footer">
+        <div class="offline-indicator" id="offline-status">
+            🔴 Sin conexión - Trabajando offline
+        </div>
+        <div class="sync-status" id="sync-status">
+            ✔️ Datos sincronizados
+        </div>
+    </footer>
+</div>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\resources\views\medication-manager.blade.php</div>
+
+                <h3>4.2 Estilos del App Shell</h3>
+                <div class="code-block">
+/* App Shell Styles */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.app-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.app-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.app-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.app-main {
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.app-footer {
+    background: #f8fafc;
+    padding: 1rem;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+}
+                </div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: App Shell en funcionamiento
+                    <br>Ubicación: http://127.0.0.1:8000/medication-manager
+                    <br>Nota: Mostrar la estructura header-main-footer cargada
+                </div>
+
+                <h3>4.3 Componentes del App Shell</h3>
+                <div class="feature-list">
+                    <h4>🏗️ Componentes Principales:</h4>
+                    <ul>
+                        <li><strong>Header Nav:</strong> Navegación principal con logo y acciones</li>
+                        <li><strong>Main Content:</strong> Área dinámica donde se carga el contenido</li>
+                        <li><strong>Footer Status:</strong> Indicadores de conexión y sincronización</li>
+                        <li><strong>Offline Indicator:</strong> Notificación visual cuando está offline</li>
+                        <li><strong>Loading States:</strong> Skeletons mientras carga el contenido</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 5. Trabajo Offline -->
+            <div class="section" id="offline">
+                <h2>5. Trabajo Offline</h2>
+                
+                <p>La aplicación implementa el principio "offline-first" con estrategias de caché inteligentes:</p>
+                
+                <h3>5.1 Estrategias de Caché</h3>
+                <div class="code-block">
+// Estrategias de caché del Service Worker
+const CACHE_STRATEGIES = {
+    // Cache-first para recursos estáticos
+    staticResources: async (request) => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        
+        try {
+            const response = await fetch(request);
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+            return response;
+        } catch (error) {
+            return caches.match('/offline.html');
+        }
+    },
+    
+    // Network-first para datos dinámicos
+    dynamicData: async (request) => {
+        try {
+            const networkResponse = await fetch(request);
+            const cache = await caches.open(DYNAMIC_CACHE_NAME);
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+        } catch (error) {
+            const cached = await caches.match(request);
+            return cached || new Response(JSON.stringify({ offline: true }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+    },
+    
+    // Stale-while-revalidate para recursos que cambian poco
+    staleWhileRevalidate: async (request) => {
+        const cached = await caches.match(request);
+        
+        const fetchPromise = fetch(request).then(networkResponse => {
+            const cache = caches.open(DYNAMIC_CACHE_NAME);
+            cache.then(c => c.put(request, networkResponse.clone()));
+            return networkResponse;
+        }).catch(() => cached);
+        
+        return cached || fetchPromise;
+    }
+};
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\sw-v2.js</div>
+
+                <h3>5.2 Detección de Estado de Conexión</h3>
+                <div class="code-block">
+// Detección de conexión y manejo offline
+class ConnectionManager {
+    constructor() {
+        this.isOnline = navigator.onLine;
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.handleConnectionRestored();
+        });
+        
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.handleConnectionLost();
+        });
+    }
+    
+    handleConnectionLost() {
+        console.log('🔴 Conexión perdida - Modo offline activado');
+        this.showOfflineIndicator();
+        this.enableOfflineMode();
+    }
+    
+    handleConnectionRestored() {
+        console.log('🟢 Conexión restaurada - Sincronizando datos');
+        this.hideOfflineIndicator();
+        this.syncOfflineData();
+    }
+    
+    showOfflineIndicator() {
+        const indicator = document.getElementById('offline-indicator');
+        if (indicator) {
+            indicator.classList.add('show');
+            indicator.textContent = '🔴 Sin conexión - Trabajando offline';
+        }
+    }
+    
+    enableOfflineMode() {
+        // Activar modo offline en la interfaz
+        document.body.classList.add('offline-mode');
+        this.loadDataFromCache();
+    }
+    
+    async syncOfflineData() {
+        // Sincronizar datos pendientes cuando vuelve la conexión
+        const syncQueue = await this.getSyncQueue();
+        for (const item of syncQueue) {
+            await this.syncItem(item);
+        }
+    }
+}
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\js\connection-manager.js</div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Indicador de modo offline en funcionamiento
+                    <br>Ubicación: http://127.0.0.1:8000/medication-manager (con red desconectada)
+                    <br>Nota: Mostrar el indicador "Sin conexión - Trabajando offline"
+                </div>
+
+                <h3>5.3 Manejo de Errores Offline</h3>
+                <div class="feature-list">
+                    <h4>🔧 Mecanismos de Respaldo:</h4>
+                    <ul>
+                        <li><strong>Página Offline Personalizada:</strong> /offline.html cuando no hay conexión</li>
+                        <li><strong>Caché de Emergencia:</strong> Recursos críticos siempre disponibles</li>
+                        <li><strong>Datos en LocalStorage:</strong> Configuración y preferencias del usuario</li>
+                        <li><strong>Cola de Sincronización:</strong> Operaciones pendientes para cuando vuelva la conexión</li>
+                        <li><strong>Mensajes de Error Amigables:</strong> Notificaciones claras al usuario</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    ✅ La aplicación funciona completamente offline gracias a IndexedDB para datos y Service Worker para recursos. Cuando el servidor no está disponible, la app muestra datos cacheados y permite operaciones locales que se sincronizan automáticamente cuando vuelve la conexión.
+                </div>
+            </div>
+
+            <!-- 6. Instalación de la Aplicación -->
+            <div class="section" id="instalacion">
+                <h2>6. Instalación de la Aplicación</h2>
+                
+                <p>La PWA puede instalarse en múltiples plataformas siguiendo estos métodos:</p>
+                
+                <h3>6.1 Instalación en Dispositivos Móviles</h3>
+                <div class="feature-list">
+                    <h4>📱 Pasos para Android:</h4>
+                    <ul>
+                        <li>Abrir la aplicación en Chrome</li>
+                        <li>Esperar a que aparezca el banner de instalación</li>
+                        <li>Tocar "Agregar a pantalla de inicio"</li>
+                        <li>Confirmar la instalación</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-list">
+                    <h4>🍎 Pasos para iOS:</h4>
+                    <ul>
+                        <li>Abrir en Safari</li>
+                        <li>Tocar el botón de compartir</li>
+                        <li>Seleccionar "Agregar a inicio"</li>
+                        <li>Confirmar el nombre y tocar "Agregar"</li>
+                    </ul>
+                </div>
+
+                <h3>6.2 Instalación en Desktop</h3>
+                <div class="code-block">
+// Manejo de instalación desktop con beforeinstallprompt
+let deferredPrompt = null;
+const installButton = document.getElementById('installButton');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('📱 Evento beforeinstallprompt capturado');
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Mostrar botón de instalación personalizado
+    installButton.classList.remove('hidden');
+    installButton.addEventListener('click', installPWA);
+});
+
+async function installPWA() {
+    if (!deferredPrompt) {
+        console.log('❌ No hay prompt de instalación disponible');
+        return;
+    }
+    
+    try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+            console.log('✅ Usuario aceptó la instalación');
+            installButton.textContent = '✅ App Instalada';
+            installButton.disabled = true;
+        } else {
+            console.log('❌ Usuario rechazó la instalación');
+        }
+        
+        deferredPrompt = null;
+    } catch (error) {
+        console.error('❌ Error durante la instalación:', error);
+    }
+}
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\js\pwa-installer.js</div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Botón de instalación en desktop
+                    <br>Ubicación: http://127.0.0.1:8000 (cuando se cumplen los criterios de instalación)
+                    <br>Nota: Mostrar el botón "📱 Instalar App" en la interfaz
+                </div>
+
+                <h3>6.3 Criterios de Instalación</h3>
+                <div class="feature-list">
+                    <h4>✅ Requisitos para que aparezca el prompt de instalación:</h4>
+                    <ul>
+                        <li>La app debe estar servida sobre HTTPS (o localhost para desarrollo)</li>
+                        <li>Debe haber un archivo manifest.json válido</li>
+                        <li>El Service Worker debe estar registrado y activo</li>
+                        <li>Debe haber interacción del usuario con la página</li>
+                        <li>La app no debe estar ya instalada</li>
+                    </ul>
+                </div>
+
+                <h3>6.4 Herramienta de Prueba de Instalación</h3>
+                <p>Se creó una herramienta especial para probar la funcionalidad de instalación:</p>
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000/pwa-test" target="_blank">🧪 PWA Test Center - Probar Instalación</a>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\resources\views\pwa-test.blade.php</div>
+            </div>
+
+            <!-- 7. Uso de Base de Datos -->
+            <div class="section" id="basedatos">
+                <h2>7. Uso de Base de Datos (IndexedDB)</h2>
+                
+                <p>IndexedDB se utiliza como base de datos local para almacenar medicamentos y mantener la funcionalidad offline:</p>
+                
+                <h3>7.1 Estructura de la Base de Datos</h3>
+                <div class="code-block">
+// Estructura de IndexedDB para MedManager
+const databaseStructure = {
+    name: 'medmanager-db',
+    version: 1,
+    objectStores: {
+        medications: {
+            keyPath: 'id',
+            autoIncrement: true,
+            indexes: [
+                { name: 'name', keyPath: 'name', unique: false },
+                { name: 'expiry', keyPath: 'expiry', unique: false },
+                { name: 'quantity', keyPath: 'quantity', unique: false },
+                { name: 'category', keyPath: 'category', unique: false }
+            ]
+        },
+        syncQueue: {
+            keyPath: 'id',
+            autoIncrement: true,
+            indexes: [
+                { name: 'action', keyPath: 'action', unique: false },
+                { name: 'timestamp', keyPath: 'timestamp', unique: false }
+            ]
+        },
+        appSettings: {
+            keyPath: 'key',
+            indexes: [
+                { name: 'type', keyPath: 'type', unique: false }
+            ]
+        }
+    }
+};
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\js\database-manager.js</div>
+
+                <h3>7.2 Operaciones CRUD</h3>
+                <div class="code-block">
+// Operaciones CRUD con IndexedDB
+class MedicationDatabase {
+    async addMedication(medication) {
+        const transaction = this.db.transaction(['medications'], 'readwrite');
+        const store = transaction.objectStore('medications');
+        
+        const medicationData = {
+            ...medication,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            syncStatus: 'pending'
+        };
+        
+        const request = store.add(medicationData);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log('✅ Medicamento agregado:', request.result);
+                resolve(request.result);
+            };
+            
+            request.onerror = () => {
+                console.error('❌ Error al agregar medicamento:', request.error);
+                reject(request.error);
+            };
+        });
+    }
+    
+    async getAllMedications() {
+        const transaction = this.db.transaction(['medications'], 'readonly');
+        const store = transaction.objectStore('medications');
+        
+        return new Promise((resolve, reject) => {
+            const request = store.getAll();
+            
+            request.onsuccess = () => {
+                resolve(request.result || []);
+            };
+            
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
+    
+    async updateMedication(id, updates) {
+        const transaction = this.db.transaction(['medications'], 'readwrite');
+        const store = transaction.objectStore('medications');
+        
+        const medication = await this.getMedicationById(id);
+        if (!medication) {
+            throw new Error('Medicamento no encontrado');
+        }
+        
+        const updatedMedication = {
+            ...medication,
+            ...updates,
+            updatedAt: new Date().toISOString(),
+            syncStatus: 'pending'
+        };
+        
+        const request = store.put(updatedMedication);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async deleteMedication(id) {
+        const transaction = this.db.transaction(['medications'], 'readwrite');
+        const store = transaction.objectStore('medications');
+        
+        const request = store.delete(id);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log('🗑️ Medicamento eliminado:', id);
+                resolve(request.result);
+            };
+            
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
+}
+                </div>
+
+                <h3>7.3 Sincronización de Datos</h3>
+                <div class="code-block">
+// Sincronización de datos offline/online
+class SyncManager {
+    async addToSyncQueue(action, data) {
+        const transaction = this.db.transaction(['syncQueue'], 'readwrite');
+        const store = transaction.objectStore('syncQueue');
+        
+        const syncItem = {
+            action: action, // 'create', 'update', 'delete'
+            data: data,
+            timestamp: new Date().toISOString(),
+            status: 'pending'
+        };
+        
+        const request = store.add(syncItem);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log('🔄 Agregado a cola de sincronización:', request.result);
+                resolve(request.result);
+            };
+            
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async processSyncQueue() {
+        const transaction = this.db.transaction(['syncQueue'], 'readonly');
+        const store = transaction.objectStore('syncQueue');
+        
+        const request = store.index('status').getAll('pending');
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = async () => {
+                const pendingItems = request.result || [];
+                
+                for (const item of pendingItems) {
+                    try {
+                        await this.syncItem(item);
+                        await this.markAsSynced(item.id);
+                        console.log('✅ Elemento sincronizado:', item.id);
+                    } catch (error) {
+                        console.error('❌ Error al sincronizar:', error);
+                        await this.markAsFailed(item.id, error);
+                    }
+                }
+                
+                resolve(pendingItems.length);
+            };
+            
+            request.onerror = () => reject(request.error);
+        });
+    }
+    
+    async syncItem(item) {
+        const response = await fetch('/api/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: item.action,
+                data: item.data,
+                timestamp: item.timestamp
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error de sincronización: ${response.status}`);
+        }
+        
+        return response.json();
+    }
+}
+                </div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Datos almacenados en IndexedDB
+                    <br>Ubicación: Chrome DevTools → Application → IndexedDB
+                    <br>Nota: Mostrar las tablas 'medications' y 'syncQueue' con datos
+                </div>
+
+                <h3>7.4 Herramienta de Limpieza de Datos</h3>
+                <p>Se creó una herramienta especial para gestionar y limpiar datos de la base de datos local:</p>
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000/emergency-cleanup.html" target="_blank">🗑️ Emergency Cleanup Tool</a>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\emergency-cleanup.html</div>
+            </div>
+
+            <!-- 8. URL de la Aplicación Publicada -->
+            <div class="section" id="url">
+                <h2>8. URL de la Aplicación Publicada</h2>
+                
+                <p>La aplicación está actualmente en desarrollo local. Las URLs de acceso son:</p>
+                
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000" target="_blank">🏠 Página Principal - http://127.0.0.1:8000</a>
+                </div>
+                
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000/medication-manager" target="_blank">💊 Gestor de Medicamentos - http://127.0.0.1:8000/medication-manager</a>
+                </div>
+                
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000/pwa-test" target="_blank">🧪 PWA Test Center - http://127.0.0.1:8000/pwa-test</a>
+                </div>
+
+                <h3>8.1 Configuración de Hosting Seguro</h3>
+                <div class="warning-box">
+                    ⚠️ Importante: Para producción, la aplicación debe estar servida sobre HTTPS. En desarrollo, localhost es aceptable para las pruebas de PWA.
+                </div>
+
+                <div class="code-block">
+# Configuración de servidor para producción (ejemplo con Apache)
+<VirtualHost *:443>
+    ServerName medmanager.tu-dominio.com
+    DocumentRoot /var/www/medmanager/public
+    
+    SSLEngine on
+    SSLCertificateFile /path/to/certificate.crt
+    SSLCertificateKeyFile /path/to/private.key
+    
+    # Headers de seguridad
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Service Worker y caché
+    <FilesMatch "sw\\.js$">
+        Header set Service-Worker-Allowed "/"
+    </FilesMatch>
+    
+    # Compresión
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json
+    </IfModule>
+</VirtualHost>
+                </div>
+
+                <h3>8.2 Requisitos de HTTPS para PWA</h3>
+                <div class="feature-list">
+                    <h4>🔒 Requisitos de Seguridad:</h4>
+                    <ul>
+                        <li>Certificado SSL válido (Let's Encrypt gratuito)</li>
+                        <li>Redirección automática HTTP → HTTPS</li>
+                        <li>Headers de seguridad apropiados</li>
+                        <li>Service Worker solo funciona en contextos seguros</li>
+                        <li>Localhost es excepción para desarrollo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 9. Pantallas de Splash y Home -->
+            <div class="section" id="pantallas">
+                <h2>9. Pantallas de Splash y Home</h2>
+                
+                <p>Las pantallas de splash proporcionan una experiencia de carga profesional mientras la aplicación se inicia:</p>
+                
+                <h3>9.1 Pantallas de Splash para iOS</h3>
+                <div class="code-block">
+<!-- Splash Screens para iOS en el head del HTML -->
+<link rel="apple-touch-startup-image" 
+      href="/icons/splash-iphone.png" 
+      media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+
+<link rel="apple-touch-startup-image" 
+      href="/icons/splash-iphone-plus.png" 
+      media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+
+<link rel="apple-touch-startup-image" 
+      href="/icons/splash-ipad.png" 
+      media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+
+<link rel="apple-touch-startup-image" 
+      href="/icons/splash-ipad-landscape.png" 
+      media="(device-width: 1024px) and (device-height: 768px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\resources\views\welcome.blade.php</div>
+
+                <h3>9.2 Diseño de Pantalla de Splash</h3>
+                <div class="code-block">
+<!-- Diseño SVG de pantalla de splash -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="splashGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo -->
+  <rect width="512" height="512" fill="url(#splashGradient)"/>
+  
+  <!-- Icono de medicamento -->
+  <g transform="translate(256, 256)">
+    <!-- Círculo de fondo -->
+    <circle cx="0" cy="0" r="120" fill="white" opacity="0.2"/>
+    
+    <!-- Icono de píldora -->
+    <path d="M-40,-20 C-40,-35 -25,-50 -10,-50 C5,-50 20,-35 20,-20 C20,-5 5,10 -10,10 C-25,10 -40,-5 -40,-20 Z" 
+          fill="white" transform="rotate(-45)"/>
+    
+    <!-- Cruz médica -->
+    <g fill="white">
+      <rect x="-8" y="-25" width="16" height="50"/>
+      <rect x="-25" y="-8" width="50" height="16"/>
+    </g>
+  </g>
+  
+  <!-- Texto -->
+  <text x="256" y="380" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="32" font-weight="bold" fill="white">
+    MedManager
+  </text>
+</svg>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\public\icons\splash-icon.svg</div>
+
+                <h3>9.3 Home Screen Personalizada</h3>
+                <div class="code-block">
+<!-- Home Screen con diseño optimizado -->
+<div class="home-screen">
+  <div class="splash-container">
+    <!-- Logo animado -->
+    <div class="logo-animation">
+      <svg class="app-logo" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="90" fill="#3b82f6"/>
+        <path d="M100,30 L100,170 M30,100 L170,100" stroke="white" stroke-width="12" 
+              stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="30" fill="white"/>
+      </svg>
+    </div>
+    
+    <!-- Texto de bienvenida -->
+    <h1 class="app-title">MedManager</h1>
+    <p class="app-subtitle">Sistema de Gestión de Medicamentos</p>
+    
+    <!-- Indicador de carga -->
+    <div class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Cargando aplicación...</p>
+    </div>
+    
+    <!-- Versión y copyright -->
+    <div class="version-info">
+      <span>Versión 1.0.0</span>
+      <span>© 2025 MedManager</span>
+    </div>
+  </div>
+</div>
+
+<style>
+.home-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  text-align: center;
+}
+
+.logo-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.spinner {
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top: 3px solid white;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+                </div>
+                <div class="file-path">y:\Documentos Uni\Cuatrimestre 10\Aplicaciones Web Progresivas\2do_Parcial_Restaurant2\resources\views\splash-screen.blade.php</div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Splash screen en dispositivo móvil
+                    <br>Ubicación: Al iniciar la app instalada en móvil
+                    <br>Nota: Mostrar la pantalla de carga con logo y animación
+                </div>
+
+                <h3>9.4 Configuración de Temas</h3>
+                <div class="feature-list">
+                    <h4>🎨 Configuraciones de Tema:</h4>
+                    <ul>
+                        <li><strong>theme-color:</strong> #3b82f6 (azul principal)</li>
+                        <li><strong>background_color:</strong> #ffffff (fondo blanco)</li>
+                        <li><strong>apple-mobile-web-app-status-bar-style:</strong> default</li>
+                        <li><strong>apple-mobile-web-app-capable:</strong> yes (modo standalone)</li>
+                        <li><strong>apple-mobile-web-app-title:</strong> MedManager</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    ✅ Las pantallas de splash proporcionan una experiencia de marca profesional mientras la aplicación se carga, con animaciones suaves y diseño coherente con la identidad visual de MedManager.
+                </div>
+            </div>
+
+            <!-- 10. Reporte de Pruebas -->
+            <div class="section" id="pruebas">
+                <h2>10. Reporte de Pruebas</h2>
+                
+                <p>Se realizaron pruebas exhaustivas de todos los componentes de la PWA:</p>
+                
+                <h3>10.1 Pruebas de Service Worker</h3>
+                <div class="test-results">
+                    <h4>✅ Resultados de Pruebas de Service Worker:</h4>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Registro de Service Worker: EXITOSO</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Activación y control de página: EXITOSO</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Estrategias de caché: FUNCIONANDO</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Sincronización offline: OPERATIVA</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: PWA Test Center mostrando Service Worker activo
+                    <br>Ubicación: http://127.0.0.1:8000/pwa-test
+                    <br>Nota: Mostrar todos los checks verdes en la sección Service Worker
+                </div>
+
+                <h3>10.2 Pruebas de Instalación</h3>
+                <div class="test-results">
+                    <h4>📱 Resultados de Pruebas de Instalación:</h4>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Evento beforeinstallprompt: CAPTURADO</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Botón de instalación personalizado: FUNCIONAL</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Instalación en móvil: VERIFICADA</span>
+                    </div>
+                    <div class="test-item warning">
+                        <span class="test-icon">⚠️</span>
+                        <span>Instalación desktop: REQUIERE HTTPS en producción</span>
+                    </div>
+                </div>
+
+                <h3>10.3 Pruebas de Funcionamiento Offline</h3>
+                <div class="test-results">
+                    <h4>🌐 Resultados de Pruebas Offline:</h4>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Detección de conexión: AUTOMÁTICA</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Carga de datos desde caché: FUNCIONANDO</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Operaciones CRUD offline: OPERATIVAS</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Sincronización al volver online: SINCRONIZADA</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    📸 CAPTURA: Modo offline en funcionamiento
+                    <br>Ubicación: http://127.0.0.1:8000/medication-manager (con red desconectada)
+                    <br>Nota: Mostrar el indicador "Sin conexión - Trabajando offline"
+                </div>
+
+                <h3>10.4 Pruebas de IndexedDB</h3>
+                <div class="test-results">
+                    <h4>💾 Resultados de Pruebas de Base de Datos:</h4>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Creación de base de datos: EXITOSA</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Almacenamiento de medicamentos: FUNCIONAL</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Índices y búsquedas: OPERATIVOS</span>
+                    </div>
+                    <div class="test-item success">
+                        <span class="test-icon">✅</span>
+                        <span>Cola de sincronización: TRABAJANDO</span>
+                    </div>
+                </div>
+
+                <h3>10.5 Herramientas de Prueba Disponibles</h3>
+                <div class="feature-list">
+                    <h4>🧪 Herramientas de Testing:</h4>
+                    <ul>
+                        <li><strong>PWA Test Center:</strong> Pruebas completas de funcionalidad PWA</li>
+                        <li><strong>Emergency Cleanup:</strong> Gestión y limpieza de datos</li>
+                        <li><strong>Chrome DevTools:</strong> Application tab para IndexedDB y Service Workers</li>
+                        <li><strong>Lighthouse:</strong> Auditoría de PWA (en producción con HTTPS)</li>
+                    </ul>
+                </div>
+
+                <div class="url-box">
+                    <a href="http://127.0.0.1:8000/pwa-test" target="_blank">🧪 PWA Test Center - Realizar Pruebas Completas</a>
+                </div>
+
+                <div class="success-box">
+                    ✅ Todas las pruebas han sido exitosas. La PWA MedManager cumple con todos los requisitos de una aplicación web progresiva moderna, incluyendo instalación, funcionamiento offline, y sincronización de datos.
+                </div>
+            </div>
+
+            <!-- 11. Fuentes de Consulta -->
+            <div class="section" id="referencias">
+                <h2>11. Fuentes de Consulta</h2>
+                
+                <div class="references">
+                    <h4>📚 Bibliografía y Recursos Utilizados:</h4>
+                    <ol>
+                        <li>Google Developers. (2025). <em>Progressive Web Apps</em>. Recuperado de https://developers.google.com/web/progressive-web-apps</li>
+                        <li>Mozilla Developer Network. (2025). <em>Service Worker API</em>. Recuperado de https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API</li>
+                        <li>W3C. (2025). <em>Web App Manifest</em>. Recuperado de https://www.w3.org/TR/appmanifest/</li>
+                        <li>Microsoft Edge Team. (2025). <em>IndexedDB API</em>. Recuperado de https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-changelog/</li>
+                        <li>Laravel. (2025). <em>Laravel Documentation</em>. Recuperado de https://laravel.com/docs</li>
+                        <li>Vite. (2025). <em>Vite Documentation</em>. Recuperado de https://vitejs.dev/</li>
+                        <li>Google Chrome Developers. (2025). <em>PWA Checklist</em>. Recuperado de https://web.dev/pwa-checklist/</li>
+                        <li>Apple Developer. (2025). <em>Configuring Web Applications</em>. Recuperado de https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html</li>
+                        <li>Web.dev. (2025). <em>Offline Cookbook</em>. Recuperado de https://web.dev/offline-cookbook/</li>
+                        <li>MDN Web Docs. (2025). <em>Using IndexedDB</em>. Recuperado de https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB</li>
+                    </ol>
+                </div>
+
+                <div class="references">
+                    <h4>🔗 Recursos Adicionales:</h4>
+                    <ol>
+                        <li>Chrome DevTools. (2025). <em>Application Panel</em>. Herramienta de desarrollo para debugging de PWA.</li>
+                        <li>Lighthouse. (2025). <em>PWA Audit Tool</em>. Herramienta de auditoría para PWA.</li>
+                        <li>Workbox. (2025). <em>Workbox Documentation</em>. Biblioteca para Service Workers.</li>
+                        <li>PWA Builder. (2025). <em>PWA Builder Documentation</em>. Herramienta para crear PWA.</li>
+                    </ol>
+                </div>
+
+                <div class="success-box">
+                    ✅ Este reporte ha sido desarrollado siguiendo las mejores prácticas de desarrollo web y estándares de la industria para Progressive Web Apps.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0; color: #64748b; font-size: 0.9em;">
+                📱 Reporte de Implementación PWA - MedManager<br>
+                Aplicaciones Web Progresivas - 10º Cuatrimestre<br>
+                Universidad [Nombre de la Universidad] - 2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>

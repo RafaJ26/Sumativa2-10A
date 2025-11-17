@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .warning {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .info {
+            color: #3b82f6;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Service Worker Diagnostic Test</h1>
+    
+    <div class="test-section">
+        <h2>🌐 Navegador y Protocolo</h2>
+        <div id="browser-info"></div>
+        <div id="protocol-info"></div>
+        <div id="host-info"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Verificación de Requisitos</h2>
+        <div id="requirements-check"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 Service Worker Test</h2>
+        <button onclick="testServiceWorkerManual()">Probar Registro Manual</button>
+        <button onclick="checkSWFile()">Verificar Archivo SW</button>
+        <button onclick="clearSWCache()">Limpiar Cache SW</button>
+        <div id="sw-test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📄 Manifest Test</h2>
+        <button onclick="testManifest()">Probar Manifest</button>
+        <div id="manifest-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Log de Eventos</h2>
+        <div id="event-log" class="log"></div>
+    </div>
+
+    <script>
+        // Logging function
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            logDiv.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        // Check browser and protocol info
+        function checkBrowserInfo() {
+            const browserInfo = document.getElementById('browser-info');
+            const protocolInfo = document.getElementById('protocol-info');
+            const hostInfo = document.getElementById('host-info');
+
+            // Browser info
+            const userAgent = navigator.userAgent;
+            const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            browserInfo.innerHTML = `
+                <p class="${isChrome ? 'success' : 'warning'}">
+                    🧭 Navegador: ${isChrome ? 'Chrome ✅' : 'Otro navegador ⚠️'}
+                </p>
+                <p>User Agent: ${userAgent}</p>
+            `;
+
+            // Protocol info
+            const protocol = window.location.protocol;
+            const isHttps = protocol === 'https:';
+            const isHttp = protocol === 'http:';
+            
+            protocolInfo.innerHTML = `
+                <p class="${isLocalhost ? 'success' : (isHttps ? 'success' : 'error')}">
+                    🔒 Protocolo: ${protocol} ${isLocalhost ? '(localhost - OK) ✅' : (isHttps ? '(HTTPS) ✅' : '(HTTP) ⚠️')}
+                </p>
+            `;
+
+            // Host info
+            hostInfo.innerHTML = `
+                <p class="${isLocalhost ? 'success' : 'info'}">
+                    🏠 Host: ${window.location.hostname} ${isLocalhost ? '(entorno local) ✅' : '(entorno remoto)'}
+                </p>
+                <p>📍 URL completa: ${window.location.href}</p>
+            `;
+
+            log(`Información del navegador detectada: ${userAgent}`);
+            log(`Protocolo: ${protocol}, Host: ${window.location.hostname}`);
+        }
+
+        // Check PWA requirements
+        function checkRequirements() {
+            const requirementsDiv = document.getElementById('requirements-check');
+            let html = '';
+
+            // Check Service Worker support
+            const swSupported = 'serviceWorker' in navigator;
+            html += `<p class="${swSupported ? 'success' : 'error'}">Service Worker: ${swSupported ? 'Soportado ✅' : 'No soportado ❌'}</p>`;
+            if (!swSupported) {
+                log('❌ Service Workers no soportados en este navegador', 'error');
+            }
+
+            // Check HTTPS (or localhost)
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isHttps = window.location.protocol === 'https:';
+            const secureContext = isLocalhost || isHttps;
+            html += `<p class="${secureContext ? 'success' : 'error'}">Contexto Seguro: ${secureContext ? 'Sí ✅' : 'No ❌'}</p>`;
+            if (!secureContext) {
+                log('❌ Se requiere HTTPS o localhost para Service Workers', 'error');
+            }
+
+            // Check IndexedDB
+            const idbSupported = 'indexedDB' in window;
+            html += `<p class="${idbSupported ? 'success' : 'warning'}">IndexedDB: ${idbSupported ? 'Soportado ✅' : 'No soportado ⚠️'}</p>`;
+
+            // Check Cache API
+            const cacheSupported = 'caches' in window;
+            html += `<p class="${cacheSupported ? 'success' : 'warning'}">Cache API: ${cacheSupported ? 'Soportado ✅' : 'No soportado ⚠️'}</p>`;
+
+            // Check Web App Manifest
+            const manifestSupported = 'BeforeInstallPromptEvent' in window || 'onbeforeinstallprompt' in window;
+            html += `<p class="${manifestSupported ? 'success' : 'info'}">Web App Manifest: ${manifestSupported ? 'Soportado ✅' : 'Estado desconocido ℹ️'}</p>`;
+
+            requirementsDiv.innerHTML = html;
+        }
+
+        // Test Service Worker registration
+        async function testServiceWorkerManual() {
+            const resultsDiv = document.getElementById('sw-test-results');
+            resultsDiv.innerHTML = '<p class="info">🔄 Procesando registro de Service Worker...</p>';
+
+            if (!('serviceWorker' in navigator)) {
+                resultsDiv.innerHTML = '<p class="error">❌ Service Workers no soportados</p>';
+                log('Service Worker no soportado', 'error');
+                return;
+            }
+
+            try {
+                log('🔄 Intentando registrar Service Worker...', 'info');
+                
+                // Unregister any existing service workers first
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    log(`🗑️ Eliminando registro existente: ${registration.scope}`, 'warning');
+                    await registration.unregister();
+                }
+
+                // Try to register with detailed error handling
+                const registration = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/',
+                    updateViaCache: 'none'
+                });
+
+                log(`✅ Service Worker registrado exitosamente: ${registration.scope}`, 'success');
+                
+                // Wait for the service worker to be ready
+                await navigator.serviceWorker.ready;
+                log('✅ Service Worker está listo y activo', 'success');
+
+                // Check if it's controlling the page
+                if (navigator.serviceWorker.controller) {
+                    log('🎯 Service Worker está controlando la página actual', 'success');
+                } else {
+                    log('⚠️ Service Worker está registrado pero no controlando la página actual', 'warning');
+                }
+
+                resultsDiv.innerHTML = `
+                    <p class="success">✅ Service Worker registrado exitosamente</p>
+                    <p class="info">Scope: ${registration.scope}</p>
+                    <p class="info">Estado: ${registration.active ? 'Activo' : 'Inactivo'}</p>
+                    <p class="${navigator.serviceWorker.controller ? 'success' : 'warning'}">
+                        ${navigator.serviceWorker.controller ? '🎯 Controlando página' : '⚠️ No controlando página'}
+                    </p>
+                `;
+
+            } catch (error) {
+                log(`❌ Error detallado: ${error.message}`, 'error');
+                log(`Tipo de error: ${error.name}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+                
+                resultsDiv.innerHTML = `
+                    <p class="error">❌ Error al registrar Service Worker</p>
+                    <p class="error">Mensaje: ${error.message}</p>
+                    <p class="error">Tipo: ${error.name}</p>
+                    <p class="info">URL intentada: ${window.location.origin}/sw.js</p>
+                `;
+            }
+        }
+
+        // Check if SW file exists
+        async function checkSWFile() {
+            const resultsDiv = document.getElementById('sw-test-results');
+            resultsDiv.innerHTML = '<p class="info">🔍 Verificando archivo Service Worker...</p>';
+
+            try {
+                const response = await fetch('/sw.js', {
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    const contentLength = response.headers.get('content-length');
+                    log(`✅ Archivo SW encontrado (${response.status})`, 'success');
+                    log(`📄 Tipo: ${contentType}, Tamaño: ${contentLength} bytes`, 'info');
+                    
+                    // Get first few lines to verify it's JavaScript
+                    const text = await response.text();
+                    const firstLines = text.split('\n').slice(0, 5).join('\n');
+                    log(`📝 Primeras líneas:\n${firstLines}`, 'info');
+
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Archivo Service Worker accesible</p>
+                        <p class="info">Status: ${response.status}</p>
+                        <p class="info">Content-Type: ${contentType}</p>
+                        <p class="info">Tamaño: ${contentLength} bytes</p>
+                        <p class="info">Primeras líneas válidas: ${firstLines.includes('const') || firstLines.includes('function') ? 'Sí ✅' : 'No ❌'}</p>
+                    `;
+                } else {
+                    log(`❌ Archivo SW no accesible (${response.status})`, 'error');
+                    resultsDiv.innerHTML = `<p class="error">❌ Archivo no accesible: ${response.status}</p>`;
+                }
+            } catch (error) {
+                log(`❌ Error al verificar archivo: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `<p class="error">❌ Error de red: ${error.message}</p>`;
+            }
+        }
+
+        // Clear SW cache
+        async function clearSWCache() {
+            const resultsDiv = document.getElementById('sw-test-results');
+            resultsDiv.innerHTML = '<p class="info">🧹 Limpiando caché de Service Worker...</p>';
+
+            try {
+                // Clear service worker cache
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    log(`📋 Caches encontradas: ${cacheNames.join(', ')}`, 'info');
+                    
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        log(`🗑️ Cache eliminada: ${cacheName}`, 'warning');
+                    }
+                }
+
+                // Unregister service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                        log(`🗑️ Service Worker desregistrado: ${registration.scope}`, 'warning');
+                    }
+                }
+
+                log('✅ Caché y Service Workers limpiados', 'success');
+                resultsDiv.innerHTML = '<p class="success">✅ Caché limpiada exitosamente</p>';
+                
+                // Reload page
+                setTimeout(() => {
+                    log('🔄 Recargando página...', 'info');
+                    location.reload();
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Error limpiando caché: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Test manifest
+        async function testManifest() {
+            const resultsDiv = document.getElementById('manifest-results');
+            resultsDiv.innerHTML = '<p class="info">🔍 Verificando manifest...</p>';
+
+            try {
+                const response = await fetch('/manifest.json', {
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok) {
+                    const manifest = await response.json();
+                    log('✅ Manifest cargado exitosamente', 'success');
+                    log(`📋 Nombre: ${manifest.name}`, 'info');
+                    log(`📱 Nombre corto: ${manifest.short_name}`, 'info');
+                    log(`🎯 Start URL: ${manifest.start_url}`, 'info');
+                    log(`📦 Icons: ${manifest.icons?.length || 0} encontrados`, 'info');
+
+                    resultsDiv.innerHTML = `
+                        <p class="success">✅ Manifest accesible y válido</p>
+                        <p class="info">Nombre: ${manifest.name}</p>
+                        <p class="info">Start URL: ${manifest.start_url}</p>
+                        <p class="info">Display: ${manifest.display}</p>
+                        <p class="info">Icons: ${manifest.icons?.length || 0}</p>
+                    `;
+                } else {
+                    log(`❌ Manifest no accesible (${response.status})`, 'error');
+                    resultsDiv.innerHTML = `<p class="error">❌ Manifest error: ${response.status}</p>`;
+                }
+            } catch (error) {
+                log(`❌ Error manifest: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            log('🚀 Página cargada, iniciando diagnóstico...', 'info');
+            checkBrowserInfo();
+            checkRequirements();
+            
+            // Check current SW status
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    log(`📊 Service Workers registrados actualmente: ${registrations.length}`, 'info');
+                    registrations.forEach(reg => {
+                        log(`📍 SW encontrado: ${reg.scope} (${reg.active ? 'activo' : 'inactivo'})`, 'info');
+                    });
+                });
+            }
+        });
+
+        // Log any SW related errors
+        window.addEventListener('error', (event) => {
+            if (event.message?.includes('ServiceWorker') || event.message?.includes('sw.js')) {
+                log(`❌ Error SW detectado: ${event.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

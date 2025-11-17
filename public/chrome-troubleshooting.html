@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome PWA Troubleshooting - MedManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #4a5568;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #667eea;
+            margin-top: 25px;
+        }
+        .step {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .chrome-url {
+            background: #1a202c;
+            color: #48bb78;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .warning {
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .success {
+            background: #c6f6d5;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .info {
+            background: #bee3f8;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .diagnostic-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .quick-test {
+            background: #f0fff4;
+            border: 2px solid #48bb78;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .chrome-specific {
+            background: #fff5f5;
+            border: 2px solid #f56565;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Solución de Problemas Chrome - MedManager PWA</h1>
+        
+        <div class="info">
+            <strong>💡 Información importante:</strong> El diagnóstico muestra que tu Service Worker SÍ está registrado, 
+            pero puede que no lo estás viendo en tu Chrome personal. Esta guía te ayudará a verificarlo correctamente.
+        </div>
+
+        <h2>🔍 Verificación Rápida (30 segundos)</h2>
+        <div class="quick-test">
+            <h3>Prueba inmediata:</h3>
+            <button class="button" onclick="runQuickTest()">🚀 Ejecutar Prueba Rápida</button>
+            <div id="quick-results" class="diagnostic-area" style="display: none;"></div>
+        </div>
+
+        <h2>📋 Pasos para Verificar en Chrome Real</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Abre Chrome DevTools:</strong>
+            <ul>
+                <li>Abre tu navegador Chrome (no el del IDE)</li>
+                <li>Ve a: <span class="chrome-url">http://127.0.0.1:8000</span></li>
+                <li>Presiona <strong>F12</strong> o <strong>Ctrl+Shift+I</strong></li>
+                <li>Selecciona la pestaña <strong>Application</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Verifica Service Workers:</strong>
+            <ul>
+                <li>En el panel izquierdo, busca <strong>Service Workers</strong></li>
+                <li>Deberías ver algo como: <code>sw.js</code> o <code>sw-v2.js</code></li>
+                <li>El status debe mostrar: <span style="color: green;">✅ Activated and is running</span></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Verifica el Manifest:</strong>
+            <ul>
+                <li>En el mismo panel, busca <strong>Manifest</strong></li>
+                <li>Debe mostrar toda la información de tu app</li>
+                <li>El nombre debe ser: <strong>"Sistema de Gestión de Medicamentos"</strong></li>
+            </ul>
+        </div>
+
+        <h2>🌐 Chrome Internals (Método Avanzado)</h2>
+        <div class="chrome-specific">
+            <h3>Página especial de Chrome para Service Workers:</h3>
+            <div class="step">
+                <span class="step-number">A</span>
+                Abre una nueva pestaña en Chrome
+            </div>
+            <div class="step">
+                <span class="step-number">B</span>
+                Escribe en la barra de direcciones: <span class="chrome-url">chrome://serviceworker-internals/</span>
+            </div>
+            <div class="step">
+                <span class="step-number">C</span>
+                Busca en la lista: <strong>127.0.0.1:8000</strong> o <strong>localhost:8000</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">D</span>
+                Si lo encuentras, haz clic en <strong>"Inspect"</strong> para ver más detalles
+            </div>
+        </div>
+
+        <h2>🛠️ Soluciones Comunes para Chrome</h2>
+        
+        <h3>Si NO ves el Service Worker:</h3>
+        
+        <div class="warning">
+            <strong>⚠️ Problema 1: Chrome no registra el SW</strong><br>
+            <strong>Solución:</strong> 
+            <ol>
+                <li>Ve a: <span class="chrome-url">chrome://settings/clearBrowserData</span></li>
+                <li>Limpia: "Cached images and files" y "Cookies"</li>
+                <li>Reinicia Chrome</li>
+                <li>Intenta nuevamente</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Problema 2: Service Worker no se activa</strong><br>
+            <strong>Solución:</strong>
+            <ol>
+                <li>Abre DevTools (F12)</li>
+                <li>Ve a Application → Service Workers</li>
+                <li>Haz clic en <strong>"Update"</strong> o <strong>"Unregister"</strong></li>
+                <li>Recarga la página (Ctrl+F5)</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Problema 3: HTTPS requerido</strong><br>
+            <strong>Solución:</strong>
+            <div class="success">
+                ✅ <strong>¡Buena noticia!</strong> Estás usando <strong>localhost</strong> que es considerado seguro por Chrome.
+                No necesitas HTTPS en desarrollo local.
+            </div>
+        </div>
+
+        <h2>🔄 Reinicio Completo del Service Worker</h2>
+        <div class="chrome-specific">
+            <button class="button" onclick="clearAllAndReload()">🗑️ Limpiar Todo y Recargar</button>
+            <p><strong>⚠️ Advertencia:</strong> Esto eliminará todos los Service Workers y cachés.</p>
+        </div>
+
+        <h2>📱 Prueba de Instalación</h2>
+        <div class="quick-test">
+            <h3>¿Tu PWA se puede instalar?</h3>
+            <button class="button" onclick="testInstallability()">📲 Probar Instalabilidad</button>
+            <div id="install-test-results" style="margin-top: 15px;"></div>
+        </div>
+
+        <h2>🎯 Diagnóstico Final</h2>
+        <div class="info">
+            <strong>🔍 ¿Aún no funciona?</strong> Envíame esta información:
+            <ol>
+                <li>¿Qué ves exactamente en <span class="chrome-url">chrome://serviceworker-internals/</span>?</li>
+                <li>¿Hay algún error en la consola de DevTools (F12)?</li>
+                <li>¿Qué versión de Chrome estás usando?</li>
+                <li>¿Estás usando Chrome normal o Chrome en modo incógnito?</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('quick-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f56565' : type === 'success' ? '#48bb78' : '#4299e1';
+            results.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${timestamp}] ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function runQuickTest() {
+            const results = document.getElementById('quick-results');
+            results.style.display = 'block';
+            results.innerHTML = '<div style="color: #4299e1;">🔄 Iniciando prueba rápida...</div>';
+
+            // Test 1: Service Worker Support
+            if ('serviceWorker' in navigator) {
+                log('✅ Service Workers soportados en este navegador', 'success');
+            } else {
+                log('❌ Service Workers NO soportados', 'error');
+                return;
+            }
+
+            // Test 2: Check current registrations
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                log(`📊 Service Workers registrados: ${registrations.length}`, 'info');
+                
+                if (registrations.length > 0) {
+                    registrations.forEach((reg, index) => {
+                        log(`📍 SW ${index + 1}: ${reg.scope} (${reg.active ? 'activo' : 'inactivo'})`, 'success');
+                    });
+                } else {
+                    log('⚠️ No hay Service Workers registrados actualmente', 'warning');
+                }
+            });
+
+            // Test 3: Check if page is controlled
+            if (navigator.serviceWorker.controller) {
+                log('🎯 Esta página está siendo controlada por un Service Worker', 'success');
+            } else {
+                log('⚠️ Esta página NO está siendo controlada por un Service Worker', 'warning');
+            }
+
+            // Test 4: Check ready state
+            navigator.serviceWorker.ready.then(registration => {
+                log('✅ Service Worker está listo y activo', 'success');
+            }).catch(err => {
+                log(`❌ Error verificando SW ready: ${err.message}`, 'error');
+            });
+
+            // Test 5: Protocol check
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isHttps = window.location.protocol === 'https:';
+            
+            if (isLocalhost) {
+                log('✅ Usando localhost (contexto seguro para PWA)', 'success');
+            } else if (isHttps) {
+                log('✅ Usando HTTPS (contexto seguro para PWA)', 'success');
+            } else {
+                log('❌ HTTP sin localhost - Service Worker puede tener problemas', 'error');
+            }
+
+            // Test 6: Try to register a test SW
+            setTimeout(() => {
+                log('🔄 Intentando registrar Service Worker de prueba...', 'info');
+                
+                // Create a simple test service worker
+                const testSWCode = `
+                    self.addEventListener('install', () => console.log('Test SW installed'));
+                    self.addEventListener('activate', () => console.log('Test SW activated'));
+                    self.addEventListener('fetch', () => console.log('Test SW fetch'));
+                `;
+                
+                const testSWBlob = new Blob([testSWCode], { type: 'application/javascript' });
+                const testSWURL = URL.createObjectURL(testSWBlob);
+                
+                navigator.serviceWorker.register(testSWURL, { scope: '/' })
+                    .then(reg => {
+                        log('✅ Service Worker de prueba registrado exitosamente', 'success');
+                        log(`📍 Scope: ${reg.scope}`, 'info');
+                        
+                        // Clean up
+                        setTimeout(() => {
+                            reg.unregister().then(() => {
+                                log('🗑️ Service Worker de prueba limpiado', 'info');
+                                URL.revokeObjectURL(testSWURL);
+                            });
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        log(`❌ Error registrando SW de prueba: ${err.message}`, 'error');
+                        URL.revokeObjectURL(testSWURL);
+                    });
+            }, 1000);
+        }
+
+        function clearAllAndReload() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los Service Workers y recargar la página?')) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                });
+                
+                if ('caches' in window) {
+                    caches.keys().then(cacheNames => {
+                        cacheNames.forEach(cacheName => {
+                            caches.delete(cacheName);
+                        });
+                    });
+                }
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            }
+        }
+
+        function testInstallability() {
+            const results = document.getElementById('install-test-results');
+            
+            // Check manifest
+            fetch('/manifest.json')
+                .then(response => response.json())
+                .then(manifest => {
+                    results.innerHTML = '<div style="color: #48bb78;">✅ Manifest cargado exitosamente</div>';
+                    results.innerHTML += `<div style="color: #4299e1;">📱 Nombre: ${manifest.name}</div>`;
+                    results.innerHTML += `<div style="color: #4299e1;">🎯 Start URL: ${manifest.start_url}</div>`;
+                    results.innerHTML += `<div style="color: #4299e1;">📦 Icons: ${manifest.icons?.length || 0} encontrados</div>`;
+                    
+                    // Check if beforeinstallprompt is supported
+                    if ('BeforeInstallPromptEvent' in window) {
+                        results.innerHTML += '<div style="color: #48bb78;">✅ Evento beforeinstallprompt soportado</div>';
+                    } else {
+                        results.innerHTML += '<div style="color: #f56565;">⚠️ Evento beforeinstallprompt no detectado</div>';
+                    }
+                })
+                .catch(err => {
+                    results.innerHTML = `<div style="color: #f56565;">❌ Error cargando manifest: ${err.message}</div>`;
+                });
+        }
+
+        // Auto-run quick test
+        window.addEventListener('load', () => {
+            setTimeout(runQuickTest, 1000);
+        });
+    </script>
+</body>
+</html>

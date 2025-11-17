@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MedManager">
+    
+    <!-- Splash Screen Configuration -->
+    <link rel="apple-touch-startup-image" href="/icons/splash-iphone.png.svg" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/icons/splash-ipad.png.svg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/icons/splash-ipad-landscape.png.svg" media="(device-width: 1024px) and (device-height: 768px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
+    
+    <title>MedManager - Cargando...</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .splash-container {
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: iconBounce 1.2s ease-out;
+        }
+        
+        .app-icon svg {
+            width: 80px;
+            height: 80px;
+            fill: #3b82f6;
+        }
+        
+        .app-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+        
+        .loading-container {
+            margin-top: 40px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        .loading-text {
+            font-size: 14px;
+            opacity: 0.8;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 16px auto;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            animation: progress 2s ease-out;
+            width: 0%;
+        }
+        
+        .features {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            opacity: 0.7;
+        }
+        
+        .feature-item {
+            display: inline-block;
+            margin: 0 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .feature-item::before {
+            content: "✓";
+            margin-right: 4px;
+            color: #10b981;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes iconBounce {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            }
+            
+            .app-icon {
+                background: #1e293b;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            }
+            
+            .app-icon svg {
+                fill: #3b82f6;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 28px;
+            }
+            
+            .app-subtitle {
+                font-size: 14px;
+            }
+            
+            .app-icon {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .app-icon svg {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .features {
+                bottom: 20px;
+            }
+            
+            .feature-item {
+                display: block;
+                margin: 4px 0;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <div class="app-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                <circle cx="12" cy="9" r="1.5"/>
+                <path d="M12 17.5c-2.5 0-4.5-2-4.5-4.5h9c0 2.5-2 4.5-4.5 4.5z"/>
+            </svg>
+        </div>
+        
+        <h1 class="app-title">MedManager</h1>
+        <p class="app-subtitle">Sistema de Gestión de Medicamentos</p>
+        
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Iniciando aplicación...</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <span class="feature-item">Funciona offline</span>
+        <span class="feature-item">Sincronización automática</span>
+        <span class="feature-item">Notificaciones inteligentes</span>
+    </div>
+    
+    <script>
+        // Enhanced splash screen with better loading simulation
+        console.log('🚀 MedManager Splash Screen - Iniciando...');
+        
+        // Simulate loading progress
+        let progress = 0;
+        const progressFill = document.querySelector('.progress-fill');
+        const loadingText = document.querySelector('.loading-text');
+        
+        const loadingSteps = [
+            'Iniciando aplicación...',
+            'Cargando base de datos...',
+            'Verificando conexión...',
+            'Preparando interfaz...',
+            'Casi listo...'
+        ];
+        
+        let currentStep = 0;
+        
+        const updateProgress = () => {
+            progress += Math.random() * 15 + 5;
+            if (progress > 100) progress = 100;
+            
+            if (progressFill) {
+                progressFill.style.width = progress + '%';
+            }
+            
+            // Update loading text
+            if (progress > 20 && currentStep < loadingSteps.length) {
+                currentStep++;
+                if (loadingText && currentStep < loadingSteps.length) {
+                    loadingText.textContent = loadingSteps[currentStep];
+                }
+            }
+            
+            if (progress < 100) {
+                setTimeout(updateProgress, 300);
+            } else {
+                // Loading complete - redirect to main app
+                setTimeout(() => {
+                    console.log('✅ Splash Screen - Carga completa, redirigiendo...');
+                    
+                    // Check if we're in standalone mode (installed PWA)
+                    if (window.matchMedia('(display-mode: standalone)').matches) {
+                        console.log('📱 PWA en modo standalone detectado');
+                    }
+                    
+                    // Redirect to the main application
+                    window.location.href = '/medication-manager';
+                }, 800);
+            }
+        };
+        
+        // Start loading animation
+        setTimeout(updateProgress, 500);
+        
+        // Fallback redirect after 5 seconds max
+        setTimeout(() => {
+            console.log('⚠️ Splash Screen - Timeout, redirigiendo por seguridad');
+            window.location.href = '/medication-manager';
+        }, 5000);
+        
+        // Handle service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                console.log('✅ Service Worker listo en splash screen');
+                
+                // Check if we have cached data
+                if (registration.active) {
+                    console.log('📦 Service Worker activo - datos en caché disponibles');
+                }
+            }).catch(error => {
+                console.log('⚠️ Service Worker no disponible:', error);
+            });
+        }
+        
+        // Add touch feedback for better UX
+        document.addEventListener('touchstart', function() {
+            document.body.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                document.body.style.transform = 'scale(1)';
+            }, 100);
+        });
+        
+        // Add keyboard support for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                // Skip splash screen
+                window.location.href = '/medication-manager';
+            }
+        });
+        
+        console.log('🎨 Splash Screen - Configuración completada');
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Íconos PNG - MedManager</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #3b82f6; text-align: center; }
+        .instructions { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .status { margin: 20px 0; padding: 15px; background: #f0f8ff; border-radius: 5px; font-family: monospace; }
+        .icon-preview { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+        .icon-item { text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .icon-canvas { border: 1px solid #ddd; margin-bottom: 5px; }
+        button { background: #3b82f6; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; display: block; margin: 20px auto; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Generador de Íconos PNG para MedManager</h1>
+        
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Haz clic en el botón "Generar Íconos PNG"</li>
+                <li>Se descargarán automáticamente los archivos PNG</li>
+                <li>Mueve los archivos descargados a la carpeta public/icons/</li>
+                <li>Los íconos deben tener estos nombres exactos:
+                    <ul>
+                        <li>icon-72x72.png</li>
+                        <li>icon-96x96.png</li>
+                        <li>icon-128x128.png</li>
+                        <li>icon-144x144.png</li>
+                        <li>icon-152x152.png</li>
+                        <li>icon-192x192.png</li>
+                        <li>icon-384x384.png</li>
+                        <li>icon-512x512.png</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <button onclick="generateAllIcons()">🚀 Generar Íconos PNG</button>
+        
+        <div id="status" class="status">Esperando para generar íconos...</div>
+        
+        <div id="preview" class="icon-preview"></div>
+    </div>
+
+    <script>
+        function generateIcon(size, showPreview = true) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Fondo circular azul
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 2, 0, 2 * Math.PI);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fill();
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = Math.max(1, size/100);
+            ctx.stroke();
+            
+            // Cruz médica blanca
+            ctx.fillStyle = 'white';
+            const crossSize = size * 0.6;
+            const crossWidth = Math.max(4, size/20);
+            
+            // Barra vertical
+            ctx.fillRect(size/2 - crossWidth/2, size/2 - crossSize/2, crossWidth, crossSize);
+            
+            // Barra horizontal
+            ctx.fillRect(size/2 - crossSize/2, size/2 - crossWidth/2, crossSize, crossWidth);
+            
+            // Píldoras alrededor
+            const pillRadius = Math.max(3, size/30);
+            const pillDistance = size * 0.25;
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            
+            // 4 píldoras en las esquinas
+            const positions = [
+                [size/2 - pillDistance, size/2 - pillDistance],
+                [size/2 + pillDistance, size/2 - pillDistance],
+                [size/2 - pillDistance, size/2 + pillDistance],
+                [size/2 + pillDistance, size/2 + pillDistance]
+            ];
+            
+            positions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos[0], pos[1], pillRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Mostrar preview si se solicita
+            if (showPreview) {
+                const preview = document.getElementById('preview');
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+                iconItem.innerHTML = `
+                    <canvas class="icon-canvas" width="50" height="50"></canvas>
+                    <div>icon-${size}x${size}.png</div>
+                `;
+                preview.appendChild(iconItem);
+                
+                // Dibujar preview pequeño
+                const previewCanvas = iconItem.querySelector('canvas');
+                const previewCtx = previewCanvas.getContext('2d');
+                previewCtx.drawImage(canvas, 0, 0, 50, 50);
+            }
+            
+            // Descargar el archivo
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+            
+            return canvas;
+        }
+        
+        function generateAllIcons() {
+            const status = document.getElementById('status');
+            const preview = document.getElementById('preview');
+            
+            status.innerHTML = '🎨 Generando íconos PNG...<br>';
+            preview.innerHTML = '';
+            
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    generateIcon(size);
+                    status.innerHTML += `✅ Icono ${size}x${size} generado<br>`;
+                }, index * 300);
+            });
+            
+            setTimeout(() => {
+                status.innerHTML += '<br>🎉 ¡Todos los íconos han sido generados!<br>';
+                status.innerHTML += '💡 Ahora mueve los archivos descargados a la carpeta public/icons/';
+            }, sizes.length * 300 + 1000);
+        }
+    </script>
+</body>
+</html>

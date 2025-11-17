@@ -1,0 +1,134 @@
+{
+  "name": "Sistema de Gestión de Medicamentos",
+  "short_name": "MedManager",
+  "description": "Sistema de gestión de medicamentos con funcionalidad offline para farmacias y pacientes",
+  "start_url": "/splash-screen.html",
+  "scope": "/",
+  "display_override": ["standalone", "minimal-ui"],
+  "display": "standalone",
+  "background_color": "#3b82f6",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["medical", "health", "productivity"],
+  "lang": "es-ES",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.svg",
+      "sizes": "152x152",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.svg",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Vista principal del sistema de medicamentos en desktop"
+    },
+    {
+      "src": "/screenshots/mobile-home.svg",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Vista principal del sistema de medicamentos en móvil"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agregar Medicamento",
+      "short_name": "Nuevo Medicamento",
+      "description": "Agregar un nuevo medicamento al inventario",
+      "url": "/medicamentos/agregar",
+      "icons": [
+        {
+          "src": "/icons/add-medication.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Buscar Medicamento",
+      "short_name": "Buscar",
+      "description": "Buscar medicamentos en el inventario",
+      "url": "/medicamentos/buscar",
+      "icons": [
+        {
+          "src": "/icons/search-medication.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Inventario",
+      "short_name": "Inventario",
+      "description": "Ver el inventario completo de medicamentos",
+      "url": "/inventario",
+      "icons": [
+        {
+          "src": "/icons/inventory.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://tu-dominio.com/manifest.json"
+    }
+  ],
+  "prefer_related_applications": false,
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🔍 PWA Status Check - MedManager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .status-card {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #e5e7eb;
+        }
+        
+        .status-card.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .status-card.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .status-card.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .feature-item.working {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .feature-item.not-working {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .log-output {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .button:hover {
+            background: #2563eb;
+        }
+        
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 PWA Status Check - MedManager</h1>
+        
+        <div class="status-card" id="overall-status">
+            <h2>📊 Estado General del PWA</h2>
+            <div id="status-content">Verificando estado del PWA...</div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-item" id="sw-status">
+                <h3>⚙️ Service Worker</h3>
+                <div class="status-icon">⏳</div>
+                <p>Verificando...</p>
+            </div>
+            
+            <div class="feature-item" id="manifest-status">
+                <h3>📋 Manifest</h3>
+                <div class="status-icon">⏳</div>
+                <p>Verificando...</p>
+            </div>
+            
+            <div class="feature-item" id="install-status">
+                <h3>📱 Instalación</h3>
+                <div class="status-icon">⏳</div>
+                <p>Verificando...</p>
+            </div>
+            
+            <div class="feature-item" id="offline-status">
+                <h3>🌐 Offline</h3>
+                <div class="status-icon">⏳</div>
+                <p>Verificando...</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="button" onclick="checkPWAStatus()">🔄 Verificar Estado</button>
+            <button class="button" onclick="testInstallation()">🚀 Probar Instalación</button>
+            <button class="button" onclick="showChromeExtensionGuide()">🔧 Guía Extensión Chrome</button>
+        </div>
+        
+        <div class="log-output" id="log-output">
+            Console logs aparecerán aquí...
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to show in test output
+        const originalLog = console.log;
+        const logOutput = document.getElementById('log-output');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] ${message}\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        };
+        
+        function updateFeatureStatus(featureId, working, title, message) {
+            const element = document.getElementById(featureId);
+            const icon = element.querySelector('.status-icon');
+            const text = element.querySelector('p');
+            
+            element.classList.remove('working', 'not-working');
+            element.classList.add(working ? 'working' : 'not-working');
+            
+            icon.textContent = working ? '✅' : '❌';
+            text.textContent = message;
+        }
+        
+        async function checkPWAStatus() {
+            console.log('🔍 Iniciando verificación completa del PWA...');
+            
+            // Check Service Worker
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    
+                    if (registration) {
+                        console.log('✅ Service Worker registrado:', registration);
+                        
+                        if (registration.active) {
+                            console.log('✅ Service Worker activo');
+                            
+                            // Check if it's controlling the page
+                            if (navigator.serviceWorker.controller) {
+                                console.log('✅ Service Worker está controlando la página');
+                                updateFeatureStatus('sw-status', true, '⚙️ Service Worker', 'Activo y controlando la página');
+                            } else {
+                                console.log('⚠️ Service Worker activo pero no controlando la página');
+                                updateFeatureStatus('sw-status', false, '⚙️ Service Worker', 'Activo pero no controlando');
+                            }
+                        } else {
+                            console.log('❌ Service Worker no está activo');
+                            updateFeatureStatus('sw-status', false, '⚙️ Service Worker', 'No activo');
+                        }
+                    } else {
+                        console.log('❌ Service Worker no registrado');
+                        updateFeatureStatus('sw-status', false, '⚙️ Service Worker', 'No registrado');
+                    }
+                } catch (error) {
+                    console.error('❌ Error al verificar Service Worker:', error);
+                    updateFeatureStatus('sw-status', false, '⚙️ Service Worker', 'Error en verificación');
+                }
+            } else {
+                console.log('❌ Service Workers no soportados');
+                updateFeatureStatus('sw-status', false, '⚙️ Service Worker', 'No soportado');
+            }
+            
+            // Check Manifest
+            try {
+                const manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) {
+                    const response = await fetch(manifestLink.href);
+                    if (response.ok) {
+                        const manifest = await response.json();
+                        console.log('✅ Manifest cargado:', manifest);
+                        
+                        // Check required fields
+                        const requiredFields = ['name', 'short_name', 'start_url', 'display', 'icons'];
+                        const missingFields = requiredFields.filter(field => !manifest[field]);
+                        
+                        if (missingFields.length === 0) {
+                            console.log('✅ Todos los campos requeridos del manifest están presentes');
+                            
+                            // Check icons
+                            if (manifest.icons && manifest.icons.length > 0) {
+                                const has192Icon = manifest.icons.some(icon => icon.sizes.includes('192'));
+                                const has512Icon = manifest.icons.some(icon => icon.sizes.includes('512'));
+                                
+                                if (has192Icon && has512Icon) {
+                                    console.log('✅ Iconos de 192x192 y 512x512 están presentes');
+                                    updateFeatureStatus('manifest-status', true, '📋 Manifest', 'Completo con iconos requeridos');
+                                } else {
+                                    console.log('⚠️ Faltan iconos requeridos (192x192 o 512x512)');
+                                    updateFeatureStatus('manifest-status', false, '📋 Manifest', 'Faltan iconos requeridos');
+                                }
+                            } else {
+                                console.log('❌ No se encontraron iconos en el manifest');
+                                updateFeatureStatus('manifest-status', false, '📋 Manifest', 'Sin iconos');
+                            }
+                        } else {
+                            console.log('❌ Campos faltantes en manifest:', missingFields);
+                            updateFeatureStatus('manifest-status', false, '📋 Manifest', 'Campos faltantes');
+                        }
+                    } else {
+                        console.log('❌ Error al cargar manifest');
+                        updateFeatureStatus('manifest-status', false, '📋 Manifest', 'Error al cargar');
+                    }
+                } else {
+                    console.log('❌ No se encontró link de manifest');
+                    updateFeatureStatus('manifest-status', false, '📋 Manifest', 'No encontrado');
+                }
+            } catch (error) {
+                console.error('❌ Error al verificar manifest:', error);
+                updateFeatureStatus('manifest-status', false, '📋 Manifest', 'Error en verificación');
+            }
+            
+            // Check Installation
+            if ('beforeinstallprompt' in window) {
+                console.log('✅ Evento beforeinstallprompt disponible');
+                updateFeatureStatus('install-status', true, '📱 Instalación', 'Evento disponible');
+            } else if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('✅ Aplicación ya está instalada (modo standalone)');
+                updateFeatureStatus('install-status', true, '📱 Instalación', 'App ya instalada');
+            } else {
+                console.log('⚠️ Evento beforeinstallprompt no disponible');
+                updateFeatureStatus('install-status', false, '📱 Instalación', 'Evento no disponible');
+            }
+            
+            // Check Offline capability
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    if (cacheNames.length > 0) {
+                        console.log('✅ Caché disponible:', cacheNames);
+                        updateFeatureStatus('offline-status', true, '🌐 Offline', 'Caché disponible');
+                    } else {
+                        console.log('⚠️ No hay cachés disponibles');
+                        updateFeatureStatus('offline-status', false, '🌐 Offline', 'Sin cachés');
+                    }
+                } catch (error) {
+                    console.log('⚠️ Error al acceder a caché:', error);
+                    updateFeatureStatus('offline-status', false, '🌐 Offline', 'Error en caché');
+                }
+            } else {
+                console.log('❌ Caché API no soportada');
+                updateFeatureStatus('offline-status', false, '🌐 Offline', 'No soportado');
+            }
+            
+            updateOverallStatus();
+        }
+        
+        function updateOverallStatus() {
+            const swElement = document.getElementById('sw-status');
+            const manifestElement = document.getElementById('manifest-status');
+            const installElement = document.getElementById('install-status');
+            const offlineElement = document.getElementById('offline-status');
+            
+            const swWorking = swElement.classList.contains('working');
+            const manifestWorking = manifestElement.classList.contains('working');
+            const installWorking = installElement.classList.contains('working');
+            const offlineWorking = offlineElement.classList.contains('working');
+            
+            const overallCard = document.getElementById('overall-status');
+            const statusContent = document.getElementById('status-content');
+            
+            const workingFeatures = [swWorking, manifestWorking, installWorking, offlineWorking].filter(Boolean).length;
+            const totalFeatures = 4;
+            
+            if (workingFeatures === totalFeatures) {
+                overallCard.classList.remove('error', 'warning');
+                overallCard.classList.add('success');
+                statusContent.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="status-icon">✅</span>
+                        <div>
+                            <strong>¡PWA completamente funcional!</strong><br>
+                            <small>Todas las características están trabajando correctamente.</small>
+                        </div>
+                    </div>
+                `;
+            } else if (workingFeatures >= totalFeatures / 2) {
+                overallCard.classList.remove('success', 'error');
+                overallCard.classList.add('warning');
+                statusContent.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="status-icon">⚠️</span>
+                        <div>
+                            <strong>PWA parcialmente funcional</strong><br>
+                            <small>${workingFeatures} de ${totalFeatures} características están funcionando.</small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                overallCard.classList.remove('success', 'warning');
+                overallCard.classList.add('error');
+                statusContent.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="status-icon">❌</span>
+                        <div>
+                            <strong>PWA no funcional</strong><br>
+                            <small>Solo ${workingFeatures} de ${totalFeatures} características están funcionando.</small>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function testInstallation() {
+            console.log('🚀 Probando instalación de PWA...');
+            
+            if (window.pwaInstaller) {
+                window.pwaInstaller.installPWA();
+            } else {
+                console.log('❌ PWA Installer no disponible');
+                alert('El instalador PWA no está disponible. Por favor, espera a que se cargue completamente.');
+            }
+        }
+        
+        function showChromeExtensionGuide() {
+            const guide = `
+🔧 GUÍA DE INSTALACIÓN DE LA EXTENSIÓN CHROME PARA MEDMANAGER
+
+1. 📂 Abre Chrome y ve a: chrome://extensions/
+2. 🔧 Activa "Modo de desarrollador" (switch en la esquina superior derecha)
+3. 📁 Haz clic en "Cargar descomprimida"
+4. 📂 Selecciona la carpeta: ${window.location.origin}/chrome-extension/
+5. ✅ La extensión debería aparecer en tu barra de herramientas
+
+📱 FUNCIONES DE LA EXTENSIÓN:
+• ➕ Agrega un botón de descarga a las páginas de MedManager
+• 📊 Muestra el estado de tu PWA en el popup
+• 🔗 Acceso rápido a las funciones principales
+
+💡 CONSEJO: La extensión solo funciona en páginas de MedManager (${window.location.origin}).
+            `;
+            
+            alert(guide);
+            console.log('📋 Guía de extensión mostrada');
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            console.log('🔍 PWA Status Check cargado');
+            checkPWAStatus();
+            
+            // Check if PWA installer is ready
+            const checkInstallerInterval = setInterval(() => {
+                if (window.pwaInstaller) {
+                    console.log('✅ PWA Installer está disponible');
+                    clearInterval(checkInstallerInterval);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

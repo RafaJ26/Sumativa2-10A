@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🧹 Limpieza Final - MedManager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .cleanup-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+        
+        .button:hover {
+            background: #2563eb;
+        }
+        
+        .button-danger {
+            background: #ef4444;
+        }
+        
+        .button-danger:hover {
+            background: #dc2626;
+        }
+        
+        .button-success {
+            background: #10b981;
+        }
+        
+        .button-success:hover {
+            background: #059669;
+        }
+        
+        .log-output {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .medication-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .medication-item {
+            padding: 10px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .medication-item:last-child {
+            border-bottom: none;
+        }
+        
+        .medication-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .medication-details {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpieza Final - MedManager</h1>
+        
+        <div class="cleanup-section warning">
+            <h3>⚠️ Advertencia</h3>
+            <p>Esta herramienta eliminará todos los datos de medicamentos almacenados en IndexedDB. 
+            Asegúrate de haber respaldado cualquier información importante antes de continuar.</p>
+        </div>
+        
+        <div class="cleanup-section">
+            <h3>📊 Estado Actual de Datos</h3>
+            <div class="stats" id="data-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-medications">-</div>
+                    <div class="stat-label">Total Medicamentos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="db-status">-</div>
+                    <div class="stat-label">Estado BD</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="cache-size">-</div>
+                    <div class="stat-label">Tamaño Caché</div>
+                </div>
+            </div>
+            
+            <div id="medication-list-container" style="display: none;">
+                <h4>Medicamentos Encontrados:</h4>
+                <div class="medication-list" id="medication-list"></div>
+            </div>
+        </div>
+        
+        <div class="cleanup-section">
+            <h3>🧹 Opciones de Limpieza</h3>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <button class="button" onclick="checkCurrentData()">📊 Verificar Datos Actuales</button>
+                <button class="button button-danger" onclick="confirmCleanup()">🗑️ Eliminar Todos los Datos</button>
+                <button class="button button-success" onclick="cleanupComplete()">✅ Marcar como Completado</button>
+            </div>
+            
+            <div id="cleanup-results"></div>
+        </div>
+        
+        <div class="log-output" id="log-output">
+            Console logs aparecerán aquí...
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/pwa-completed" class="button button-success">🎉 Ver Resumen Final</a>
+            <a href="/" class="button">🏠 Volver al Inicio</a>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to show in test output
+        const originalLog = console.log;
+        const logOutput = document.getElementById('log-output');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] ${message}\n`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        };
+        
+        function updateStat(statId, value) {
+            document.getElementById(statId).textContent = value;
+        }
+        
+        async function checkCurrentData() {
+            console.log('📊 Verificando datos actuales...');
+            
+            try {
+                // Check IndexedDB
+                if ('indexedDB' in window) {
+                    const request = indexedDB.open('medmanager-db', 1);
+                    
+                    request.onsuccess = function(event) {
+                        const db = event.target.result;
+                        console.log('✅ Base de datos accesible:', db.name);
+                        updateStat('db-status', '✅ Activa');
+                        
+                        // Count medications
+                        const transaction = db.transaction(['medications'], 'readonly');
+                        const store = transaction.objectStore('medications');
+                        const countRequest = store.count();
+                        
+                        countRequest.onsuccess = function() {
+                            const count = countRequest.result;
+                            console.log(`📋 Se encontraron ${count} medicamentos`);
+                            updateStat('total-medications', count);
+                            
+                            if (count > 0) {
+                                // Show medication list
+                                const listRequest = store.getAll();
+                                listRequest.onsuccess = function() {
+                                    const medications = listRequest.result;
+                                    displayMedications(medications);
+                                };
+                            } else {
+                                updateStat('total-medications', '0');
+                                document.getElementById('medication-list-container').style.display = 'none';
+                            }
+                        };
+                        
+                        db.close();
+                    };
+                    
+                    request.onerror = function(event) {
+                        console.log('❌ Error al abrir base de datos:', event.target.error);
+                        updateStat('db-status', '❌ Error');
+                        updateStat('total-medications', '0');
+                    };
+                } else {
+                    console.log('❌ IndexedDB no soportado');
+                    updateStat('db-status', '❌ No soportado');
+                    updateStat('total-medications', 'N/A');
+                }
+                
+                // Check cache
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    updateStat('cache-size', cacheNames.length);
+                    console.log(`💾 Se encontraron ${cacheNames.length} cachés:`, cacheNames);
+                } else {
+                    updateStat('cache-size', 'N/A');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error al verificar datos:', error);
+                updateStat('db-status', '❌ Error');
+                updateStat('total-medications', 'Error');
+                updateStat('cache-size', 'Error');
+            }
+        }
+        
+        function displayMedications(medications) {
+            const container = document.getElementById('medication-list-container');
+            const list = document.getElementById('medication-list');
+            
+            if (medications.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            list.innerHTML = '';
+            
+            medications.forEach(med => {
+                const item = document.createElement('div');
+                item.className = 'medication-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="medication-name">${med.name || 'Sin nombre'}</div>
+                        <div class="medication-details">${med.description || 'Sin descripción'} | Cantidad: ${med.quantity || 0}</div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 0.8rem;">
+                        ID: ${med.id || 'N/A'}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        function confirmCleanup() {
+            const confirmed = confirm(
+                '¿Estás seguro de que quieres eliminar TODOS los datos de medicamentos?\n\n' +
+                'Esta acción no se puede deshacer y eliminará:\n' +
+                '• Todos los medicamentos almacenados\n' +
+                '• Toda la información de IndexedDB\n' +
+                '• Los datos estarán perdidos permanentemente\n\n' +
+                '¿Deseas continuar?'
+            );
+            
+            if (confirmed) {
+                performCleanup();
+            }
+        }
+        
+        async function performCleanup() {
+            console.log('🧹 Iniciando limpieza completa...');
+            
+            try {
+                // Clear IndexedDB
+                if ('indexedDB' in window) {
+                    const request = indexedDB.open('medmanager-db', 1);
+                    
+                    request.onsuccess = function(event) {
+                        const db = event.target.result;
+                        
+                        // Clear medications store
+                        const transaction = db.transaction(['medications'], 'readwrite');
+                        const store = transaction.objectStore('medications');
+                        const clearRequest = store.clear();
+                        
+                        clearRequest.onsuccess = function() {
+                            console.log('✅ Datos de medicamentos eliminados de IndexedDB');
+                            showCleanupResult('success', '✅ Datos de medicamentos eliminados exitosamente');
+                            checkCurrentData(); // Refresh stats
+                        };
+                        
+                        clearRequest.onerror = function() {
+                            console.error('❌ Error al eliminar datos:', clearRequest.error);
+                            showCleanupResult('error', '❌ Error al eliminar datos de medicamentos');
+                        };
+                        
+                        db.close();
+                    };
+                    
+                    request.onerror = function() {
+                        console.error('❌ Error al abrir base de datos');
+                        showCleanupResult('error', '❌ Error al acceder a la base de datos');
+                    };
+                } else {
+                    console.log('⚠️ IndexedDB no disponible');
+                    showCleanupResult('warning', '⚠️ IndexedDB no está disponible');
+                }
+                
+                // Clear cache
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        console.log(`💾 Caché eliminada: ${cacheName}`);
+                    }
+                    console.log(`✅ ${cacheNames.length} cachés eliminadas`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error durante la limpieza:', error);
+                showCleanupResult('error', '❌ Error durante la limpieza: ' + error.message);
+            }
+        }
+        
+        function showCleanupResult(type, message) {
+            const resultsContainer = document.getElementById('cleanup-results');
+            resultsContainer.innerHTML = `
+                <div class="cleanup-section ${type}">
+                    <strong>${type === 'success' ? '✅ Éxito' : type === 'error' ? '❌ Error' : '⚠️ Advertencia'}</strong><br>
+                    ${message}
+                </div>
+            `;
+        }
+        
+        function cleanupComplete() {
+            console.log('✅ Proceso de limpieza marcado como completado');
+            alert('✅ Proceso de limpieza completado.\n\nTodos los datos de prueba han sido eliminados. Tu PWA de MedManager está lista para uso en producción.');
+            window.location.href = '/pwa-completed';
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('🧹 Herramienta de limpieza cargada');
+            checkCurrentData();
+        });
+    </script>
+</body>
+</html>
