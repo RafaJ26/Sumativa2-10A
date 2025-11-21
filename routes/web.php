@@ -2,10 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Main PWA route - now serves the medication manager as the homepage
 Route::get('/', function () {
-    return view('welcome');
+    return view('medication-manager');
 });
 
+// Keep the old route for backward compatibility
 Route::get('/medication-manager', function () {
     return view('medication-manager');
 });
